@@ -1,6 +1,5 @@
 import NodeCache from 'node-cache';
 import nblx from "noblox.js";
-import { json } from '@remix-run/react';
 
 const cache = new NodeCache({ stdTTL: 60 });
 const cacheKey = 'totalMembers';
@@ -43,5 +42,5 @@ export async function loader() {
     };
 
     cache.set(cacheKey, response);
-    return json(response)
+    return response
 }
