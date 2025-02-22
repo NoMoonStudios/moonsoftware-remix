@@ -1,20 +1,26 @@
-const rateLimitMap = new Map();
+const rateLimitMap = new Map<string, Map<string, number[]>>();
 
-export default function (request : Request, windowMs = 10 * 1e3, maxRequests = 10) {
+export default function (request: Request, label: string = "global", windowMs = 10 * 1e3, maxRequests = 10) {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const key = `${ip}:${label}`;
     const now = Date.now();
 
     if (!rateLimitMap.has(ip)) {
-        rateLimitMap.set(ip, []);
+        rateLimitMap.set(ip, new Map());
     }
 
-    const timestamps = rateLimitMap.get(ip).filter((t: number) => now - t < windowMs);
+    const userLimits = rateLimitMap.get(ip)!;
+    if (!userLimits.has(label)) {
+        userLimits.set(label, []);
+    }
+
+    const timestamps = userLimits.get(label)!.filter((t: number) => now - t < windowMs);
     timestamps.push(now);
-    rateLimitMap.set(ip, timestamps);
+    userLimits.set(label, timestamps);
 
     if (timestamps.length > maxRequests) {
-        return false
+        return false;
     }
 
-    return true
+    return true;
 }
