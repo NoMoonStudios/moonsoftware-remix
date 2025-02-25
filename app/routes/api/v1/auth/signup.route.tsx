@@ -2,9 +2,8 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 import RateLimiter from '~/lib/RateLimiter';
 import dbConnect from "~/lib/connectDB";
-import { blacklistedUsernames, generateInRange } from "~/lib/functions";
+import * as SharedFunctions from "~/lib/Utilities/shared";
 import User from "~/models/User";
-import crypto from "crypto";
 import { hash } from 'bcrypt';
 
 const validAPIUrl = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
@@ -43,7 +42,7 @@ async function isTokenValid(token : string, ip : string) : Promise<boolean> {
 }
 
 async function generateID() {
-    let userid = generateInRange(10_00_000, 9_99_99_999)
+    let userid = SharedFunctions.generateInRange(10_00_000, 9_99_99_999)
     let idData = await User.findOne({userid})
     if (idData) return generateID();
     return userid
@@ -56,29 +55,32 @@ export async function action({ request }: ActionFunctionArgs) {
     if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
     const body = await request.json() as BodyArgs;
 
-    if (!body.validateToken) return { error: "Invalid token" };
+    if (!body.validateToken) return Response.json({ error: "Invalid captcha" });
 
     const ip = request.headers.get('CF-Connecting-IP');
     const isValidToken = await isTokenValid(body.validateToken, ip as string);
-    if (!isValidToken) return { error: "Invalid token" };
+    if (!isValidToken) return Response.json({ error: "Invalid token" });
     
-    if (!body.username) return {error: "Username is required"};
-    if (!body.email) return { error: "Email is required" };
-    if (!body.password) return { error: "Password is required" };
-    if (!body.acceptedTerms) return { error: "You must accept the terms of service" };
+    if (!body.username) return Response.json({error: "Username is required"});
+    if (!body.email) return Response.json({ error: "Email is required" });
+    if (!body.password) return Response.json({ error: "Password is required" });
+    if (!body.acceptedTerms) return Response.json({ error: "You must accept the terms of service" });
+    if (!SharedFunctions.validateUsername(body.username.toLocaleLowerCase())) return Response.json({ error: "Username can only contain letters, numbers, and underscores" });
+    if (!body.email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) return Response.json({ error: "Email is invalid" });
 
-    const { username, email, password } = body;
-    if (blacklistedUsernames.includes(username.toLowerCase())) return { error: "Username is not allowed" };
-    if (username.length < 3) return { error: "Username must be at least 3 characters long" };
-    if (username.length > 16) return { error: "Username must be less than 16 characters long" };
-    if (password.length < 8) return { error: "Password must be at least 8 characters long" };
-    if (password.length > 64) return { error: "Password must be less than 64 characters long" };
+    let { username, email, password } = body;
+    username = username.toLowerCase();
+    if (SharedFunctions.blacklistedUsernames.includes(username.toLowerCase())) return Response.json({ error: "Username is not allowed" });
+    if (username.length < 3) return Response.json({ error: "Username must be at least 3 characters long" });
+    if (username.length > 16) return Response.json({ error: "Username must be less than 16 characters long" });
+    if (password.length < 8) return Response.json({ error: "Password must be at least 8 characters long" });
+    if (password.length > 64) return Response.json({ error: "Password must be less than 64 characters long" });
 
     await dbConnect();
     const user = await User.findOne({ username });
-    if (user) return { error: "Username is already taken" };
-    const emailUser = await User.findOne({ email });
-    if (emailUser) return { error: "Email is already taken" };
+    if (user) return Response.json({ error: "Username is already taken" });
+    const emailUser = await User.findOne({ email, isEmailVerified: true });
+    if (emailUser) return Response.json({ error: "Email is already taken" });
 
     const passwordHash = await hash(password, 10)
     const userid = await generateID()
@@ -90,9 +92,9 @@ export async function action({ request }: ActionFunctionArgs) {
         email,
         passwordHash,
         isEmailVerified: false,
-        avatar: `https://api.dicebear.com/9.x/thumbs/svg?seed=${generateInRange(0, 1e+8)}`,
+        avatar: `https://api.dicebear.com/9.x/thumbs/svg?seed=${SharedFunctions.generateInRange(0, 1e+8)}`,
         createdAt: new Date()
     })
 
-    return { success: true }
+    return Response.json({ success: true })
 }

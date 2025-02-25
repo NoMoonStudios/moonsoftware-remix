@@ -2,7 +2,7 @@ import type { MetaFunction } from "@remix-run/node";
 import Turnstile, { useTurnstile } from "react-turnstile";
 import { Suspense, useCallback, useState } from "react";
 import { toast } from 'sonner';
-import { blacklistedUsernames, isStrictValidEmail, validateUsername } from "~/lib/functions";
+import * as SharedFunctions from "~/lib/Utilities/shared";
 
 import { FaRegUser, FaKey } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";
@@ -44,12 +44,17 @@ export default function Signup() {
 
     const onUserFieldChange = useCallback((input: React.ChangeEvent<HTMLInputElement>) => {
         let userText = input.target.value
-        if ( blacklistedUsernames.includes(userText.toLowerCase()) ) {
+        if ( SharedFunctions.blacklistedUsernames.includes(userText.toLowerCase()) ) {
             setError((prev) => ({
                 ...prev,
                 username: "User name not allowed"
             }))
             return;
+        } else if ( !SharedFunctions.validateUsername(userText) && userText !== "" ) {
+            setError((prev) => ({
+                ...prev,
+                 username: "Username can only contain letters, numbers, and underscores"
+             }))
         } else if (userText.length < 3 && userText !== "") {
             setError((prev) => ({
                ...prev,
@@ -73,7 +78,7 @@ export default function Signup() {
 
     const onEmailFieldChange = useCallback((input: React.ChangeEvent<HTMLInputElement>) => {
         let userText = input.target.value
-        if ( !isStrictValidEmail(userText) && userText!== "" ) {
+        if ( !SharedFunctions.isStrictValidEmail(userText) && userText!== "" ) {
             setError((prev) => ({
                 ...prev,
                 email: "Invalid email"
@@ -119,7 +124,7 @@ export default function Signup() {
         if (!username) return toast.error("Username is required");
         if (!email) return toast.error("Email is required");
         if (!password) return toast.error("Password is required");
-        if (blacklistedUsernames.includes(username.toLowerCase())) return toast.error("Username is not allowed");
+        if (SharedFunctions.blacklistedUsernames.includes(username.toLowerCase())) return toast.error("Username is not allowed");
         if (errors.username || errors.email || errors.password) return toast.error("Please fix the errors above.");
         if (username.length < 3) return toast.error("Username must be at least 3 characters long");
         if (username.length > 16) return toast.error("Username must be less than 16 characters long");

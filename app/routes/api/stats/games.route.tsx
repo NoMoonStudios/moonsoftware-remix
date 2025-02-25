@@ -1,5 +1,6 @@
 import NodeCache from 'node-cache';
 import nblx from "noblox.js";
+import { json } from "@remix-run/node";
 
 const cache = new NodeCache({ stdTTL: 60 });
 const cacheKey = 'games';
@@ -23,7 +24,7 @@ const groupIds = [
 export async function loader() {
     const cachedResponse = cache.get(cacheKey);
     if (cachedResponse) {
-        return cachedResponse;
+        return Response.json(cachedResponse);
     }
     let gameVisits = 0;
     let totalGames = 0;
@@ -50,5 +51,5 @@ export async function loader() {
     };
 
     cache.set(cacheKey, response);
-    return response
+    return Response.json(response);
 }

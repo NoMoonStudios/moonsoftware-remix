@@ -1,7 +1,10 @@
 import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
+import { UserInfo } from "~/types/init";
 
-export default function Navigation() {
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+
+export default function Navigation({ userInfo = undefined }: { userInfo: UserInfo | undefined }) {
     return (
         <div className="flex flex-row backdrop-blur-lg items-center z-10 justify-center">
             <header className="flex flex-row p-5 gap-7 w-[70vw]">
@@ -20,10 +23,26 @@ export default function Navigation() {
                 </div>
 
                 {/* Right panel links */}
-                <div className="flex flex-row gap-2 mt-auto mb-auto ml-auto text-sm">
-                    <Button variant={"link"} asChild><Link to={'/login'}>Login</Link></Button>
-                    <Button variant={"glow"} asChild><Link to={'/signup'}>Register</Link></Button>
-                </div>
+                {
+                    userInfo ? <>
+                        <div className="flex flex-row gap-2 mt-auto mb-auto ml-auto text-sm">
+                            <div className="flex flex-row gap-2 cursor-pointer select-none">
+                                <Avatar>
+                                    <AvatarImage src={userInfo.avatar} alt={`@${userInfo.username}`} />
+                                    <AvatarFallback>{userInfo.username}</AvatarFallback>
+                                </Avatar>
+                                <h1 className="mt-auto mb-auto">
+                                    {userInfo.username}
+                                </h1>
+                            </div>
+                        </div>
+                    </> : <>
+                        <div className="flex flex-row gap-2 mt-auto mb-auto ml-auto text-sm">
+                            <Button variant={"link"} asChild><Link to={'/login'}>Login</Link></Button>
+                            <Button variant={"glow"} asChild><Link to={'/signup'}>Register</Link></Button>
+                        </div>
+                    </>
+                }
             </header>
         </div>
     );

@@ -1,0 +1,1 @@
+export type { IUser as UserInfo } from "~/models/User"

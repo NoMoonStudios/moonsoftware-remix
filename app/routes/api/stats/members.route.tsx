@@ -23,7 +23,7 @@ const groupIds = [
 export async function loader() {
     const cachedResponse = cache.get(cacheKey);
     if (cachedResponse) {
-        return cachedResponse;
+        return Response.json(cachedResponse);
     }
     let totalMembers = 0;
 
@@ -42,5 +42,5 @@ export async function loader() {
     };
 
     cache.set(cacheKey, response);
-    return response
+    return Response.json(response);
 }

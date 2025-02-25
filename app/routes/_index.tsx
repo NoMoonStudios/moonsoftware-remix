@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { motion } from 'motion/react';
-import { formatNumber } from "~/lib/functions";
+import * as SharedFunctions from "~/lib/Utilities/shared";
 
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -23,7 +23,9 @@ import { MdAutoGraph } from "react-icons/md";
 import { SiAltiumdesigner } from "react-icons/si";
 
 
-import { useEffect, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
+import { UserInfo } from "~/types/init";
+import { GetUserSession } from "~/lib/Utilities/client";
 
 export const meta: MetaFunction = () => {
   return [
@@ -37,6 +39,8 @@ export default function Index() {
   const [totalVisits, setTotalVisits] = useState<number | undefined>();
   const [totalGames, setTotalGames] = useState<number | undefined>();
 
+  const [userInfo, setUserInfo] = useState<UserInfo|undefined>();
+
   useEffect(() => {
     if (totalMembers || totalVisits || totalGames) return;
     fetch("/api/stats/members").then(res => res.json()).then(data => {
@@ -48,11 +52,16 @@ export default function Index() {
       setTotalVisits(data.count.gameVisits);
       setTotalGames(data.count.totalGames)
     })
+
+    GetUserSession().then((data) => {
+      if (!data) return;
+      setUserInfo(data);
+    })
   }, [])
 
   return (
     <div className="h-screen overflow-x-hidden">
-      <Navigation />
+      <Navigation userInfo={userInfo} />
       <div className="flex flex-col justify-center items-center text-center gap-3 z-[3]">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><Matrix height="auto" /></motion.div>
 
@@ -84,7 +93,7 @@ export default function Index() {
             <h1 className="flex gap-3 text-2xl uppercase text-center items-center justify-center"><IoGameController className="mt-auto mb-auto" size={25} /> Games</h1>
             <h1 className="text-primary text-8xl font-bold">
               {
-                totalGames ? formatNumber(totalGames) + "+" : <Skeleton className="w-[150px] h-[80px]" />
+                totalGames ? SharedFunctions.formatNumber(totalGames) + "+" : <Skeleton className="w-[150px] h-[80px]" />
               }
             </h1>
           </div>
@@ -93,7 +102,7 @@ export default function Index() {
             <h1 className="flex gap-3 text-2xl uppercase text-center items-center justify-center"><FaDoorClosed className="mt-auto mb-auto" size={25} /> Total Visits</h1>
             <h1 className="text-primary text-8xl font-bold">
               {
-                totalVisits ? formatNumber(totalVisits) + "+" : <Skeleton className="w-[150px] h-[80px]" />
+                totalVisits ? SharedFunctions.formatNumber(totalVisits) + "+" : <Skeleton className="w-[150px] h-[80px]" />
               }
             </h1>
           </div>
@@ -102,7 +111,7 @@ export default function Index() {
             <h1 className="flex gap-3 text-2xl uppercase text-center items-center justify-center"><FaUsers className="mt-auto mb-auto" size={25} /> Members</h1>
             <h1 className="text-primary text-8xl font-bold">
               {
-                totalMembers ? formatNumber(totalMembers) + "+" : <Skeleton className="w-[150px] h-[80px]" />
+                totalMembers ? SharedFunctions.formatNumber(totalMembers) + "+" : <Skeleton className="w-[150px] h-[80px]" />
               }
             </h1>
           </div>
@@ -206,19 +215,19 @@ export default function Index() {
                 <div className="border-white w-full md:w-[20vw] justify-between items-center text-center border-2 rounded-3xl p-4 px-[20px] flex flex-col">
                   <IoStar size={50} className="mt-[20px] mb-[5px]" />
                   <h1 className="text-4xl font-bold mb-[10px]">Acquisition</h1>
-                  <p className="mb-[30px]">I you're not looking to sell your game outright, we also offer percentage-based partnerships. Contact us for more information</p>
+                  <p className="mb-[30px]">Considering selling your game? Contact us for a quote or tell us your price. Our experts will assist you through the full process, from negotiation to payment.</p>
                 </div>
 
                 <div className="border-white w-full md:w-[20vw] justify-between items-center text-center border-2 rounded-3xl p-4 px-[20px] flex flex-col">
                   <FaHandshake size={50} className="mt-[20px] mb-[5px]" />
                   <h1 className="text-4xl font-bold mb-[10px]">Partnership</h1>
-                  <p className="mb-[30px]">We offer investments in exchange for a stake in your game. If you're interested, contact us for an estimate.</p>
+                  <p className="mb-[30px]">Not looking to sell your game entirely? We also provide partnership options based on a percentage model. Get in touch for more information.</p>
                 </div>
 
                 <div className="border-white w-full md:w-[20vw] justify-between items-center text-center border-2 rounded-3xl p-4 px-[20px] flex flex-col">
                   <FaMoneyBill1Wave size={50} className="mt-[20px] mb-[5px]" />
                   <h1 className="text-4xl font-bold mb-[20px]">Investment</h1>
-                  <p className="mb-[30px]">Want to sell your game? Contact us for an estimate or share your asking price. Our team will guide you through the entire process, including negotiations and payment</p>
+                  <p className="mb-[30px]">We provide investments in return for a stake in your game. If you're interested, reach out for an estimate.</p>
                 </div>
 
               </div>

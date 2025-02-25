@@ -15,6 +15,8 @@ export function isStrictValidEmail(email: string): boolean {
 }
 
 export function validateUsername(username: string): boolean {
+    if (username.startsWith("_") || username.startsWith(".")) return false;
+    if (username.endsWith("_") || username.endsWith(".")) return false;
     const usernameRegex = /^[a-zA-Z0-9._]{3,20}$/;
     return usernameRegex.test(username);
 }
