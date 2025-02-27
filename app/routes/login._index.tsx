@@ -1,5 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { toast } from 'sonner';
 import * as SharedFunctions from "~/lib/Utilities/shared";
 
@@ -14,6 +14,12 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { Checkbox } from "~/components/ui/checkbox";
 
+import { UserInfo } from "~/types/init";
+import { GetUserSession } from "~/lib/Utilities/client";
+
+import { CgSpinner } from "react-icons/cg";
+
+
 export const meta: MetaFunction = () => {
     return [
         { title: "Login - Moon Software" },
@@ -26,6 +32,9 @@ export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
+    const [userInfo, setUserInfo] = useState<UserInfo|undefined>();
+    const [isLoading, setLoading] = useState(false);
+
     const onUserFieldChanged = useCallback((input : React.ChangeEvent<HTMLInputElement>) => {
         const usernameValue = input.target.value;
         setUsername(usernameValue);
@@ -37,22 +46,32 @@ export default function Login() {
     }, [password])
 
     const onSubmit = useCallback(() => {
+        setLoading(true)
         fetch('/api/v1/auth/login', {
             method: "POST",
             body: JSON.stringify({username, password})
         }).then(async res => {
             if (!res.ok) {
-                toast.error(res.statusText)
+                setLoading(false)
+                toast.error(`${res.statusText} : ${await res.text()}`)
                 return;
             }
             const data = res.json()
             toast.success("Successfully logged in!");
+            setLoading(false)
             window.location.href = "/";
         })
     }, [username, password])
 
+    useEffect(() => {
+        GetUserSession().then((data) => {
+            if (!data) return;
+            setUserInfo(data);
+          })
+    },[])
+
     return <>
-        <Navigation />
+        <Navigation userInfo={userInfo} />
         <div className="flex flex-col items-center">
             <Toaster />
             <div className="relative flex flex-col mt-[10vh] rounded-2xl text-center self-center justify-center items-center border border-white/10 w-[30vw] min-w-[400px] py-[8vh]">
@@ -75,7 +94,10 @@ export default function Login() {
                         <Input type="password" id="password" onInput={onPassFieldChanged} className="py-6 px-4 w-[60vw] md:w-[20vw]" placeholder="*********" />
                     </div>
 
-                    <Button variant={"default"} className="mt-[20px]" onClick={onSubmit}>Login</Button>
+                    <Button variant={"default"} className="mt-[20px] flex flex-row gap-2" disabled={isLoading} onClick={onSubmit}>
+                        { isLoading && <CgSpinner className="animate-spin"/> }
+                        Login
+                    </Button>
                 </div>
             </div>
         </div>

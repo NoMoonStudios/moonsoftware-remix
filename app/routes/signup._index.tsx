@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import Turnstile, { useTurnstile } from "react-turnstile";
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { toast } from 'sonner';
 import * as SharedFunctions from "~/lib/Utilities/shared";
 
@@ -16,6 +16,9 @@ import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { Checkbox } from "~/components/ui/checkbox";
+
+import { UserInfo } from "~/types/init";
+import { GetUserSession } from "~/lib/Utilities/client";
 
 export const meta: MetaFunction = () => {
     return [
@@ -34,6 +37,15 @@ export default function Signup() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isAcceptedTOS, setAcceptedTOS] = useState(false);
+
+    const [userInfo, setUserInfo] = useState<UserInfo|undefined>();
+
+    useEffect(() => {
+        GetUserSession().then((data) => {
+            if (!data) return;
+            setUserInfo(data);
+          })
+    },[])
 
     const [errors, setError] = useState<{username:boolean|string, email:boolean|string, password:boolean|string, acceptedTerms:boolean|string}>({
         username: false,
@@ -175,7 +187,7 @@ export default function Signup() {
     }, [username, email, password, isAcceptedTOS])
 
     return <>
-        <Navigation />
+        <Navigation userInfo={userInfo} />
         <div className="flex flex-col items-center">
             <Toaster />
             <div className="relative flex flex-col mt-[10vh] rounded-2xl text-center self-center justify-center items-center border border-white/10 w-[30vw] min-w-[400px] py-[8vh]">
