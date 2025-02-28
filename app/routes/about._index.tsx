@@ -29,16 +29,8 @@ export const meta: MetaFunction = () => {
         { title: "About Us - Moon Software" },
         { name: "description", content: "Elevate your game with stunning assets, UI/UX, and environments from skilled developers." },
         {
-            property: "og:image",
-            content: "/banner.webp",
-        },
-        {
-            property: "og:image:width",
-            content: "1280",
-        },
-        {
-            property: "og:image:height",
-            content: "720",
+            property: "og:video",
+            content: "/work/building/video1.mp4",
         }
     ];
 };
