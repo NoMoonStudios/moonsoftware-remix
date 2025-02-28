@@ -101,10 +101,20 @@ export default function About() {
                                         Array.from({ length: work[selectedOption].entries }).map((value, index) => (
                                             <CarouselItem>
                                                 <AspectRatio ratio={16 / 9}>
-                                                    <img src={work[selectedOption].url + "/" + (index + 1) + ".webp"} className="w-full h-full object-cover rounded-xl" />
+                                                    <img loading="lazy" src={work[selectedOption].url + "/" + (index + 1) + ".png"} className="w-full h-full object-cover rounded-xl" />
                                                 </AspectRatio>
                                             </CarouselItem>
                                         ))
+                                    }
+
+                                    {
+                                        selectedOption == "building" && <CarouselItem>
+                                        <AspectRatio ratio={16 / 9}>
+                                            <video muted loop controls={false} autoPlay>
+                                                <source src="/work/building/video1.mp4"/>
+                                            </video>
+                                        </AspectRatio>
+                                    </CarouselItem>
                                     }
                                 </CarouselContent>
                                 <CarouselPrevious />
@@ -149,21 +159,22 @@ export default function About() {
 
 const work = {
     building: {
-        entries: 14,
+        entries: 12,
         url: '/work/building'
     },
     ui: {
-        entries: 10,
+        entries: 8,
         url: '/work/ui'
     }, 
     models: {
-        entries: 32,
+        entries: 13,
         url: '/work/modeling'
     }
 } as {
     [key: string]: {
         entries: number,
-        url: string
+        url: string,
+        type?: string
     }
 }
 
