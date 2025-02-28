@@ -30,7 +30,7 @@ export const meta: MetaFunction = () => {
         { name: "description", content: "Elevate your game with stunning assets, UI/UX, and environments from skilled developers." },
         {
             property: "og:video",
-            content: "/work/building/video1.mp4",
+            content: "https://moonsoftwareroblox.com/work/building/video1.mp4",
         }
     ];
 };
