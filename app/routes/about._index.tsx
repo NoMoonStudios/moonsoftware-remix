@@ -194,7 +194,7 @@ const teamMembers = [
     {
         name: "Boldy Boat",
         alt: "BB",
-        role: "Lead Developer",
+        role: "Studio Director",
         image: "/team/boldy.webp",
     },
     {
