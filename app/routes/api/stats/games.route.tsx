@@ -1,8 +1,7 @@
-import NodeCache from 'node-cache';
+import { LoaderFunctionArgs } from "@remix-run/node";
 import nblx from "noblox.js";
-import { json } from "@remix-run/node";
+import redisDB from "~/lib/redisDB";
 
-const cache = new NodeCache({ stdTTL: 60 });
 const cacheKey = 'games';
 
 const groupIds = [
@@ -21,10 +20,13 @@ const groupIds = [
     34420496, // Group 311
 ]
 
-export async function loader() {
-    const cachedResponse = cache.get(cacheKey);
+export async function loader({ request }: LoaderFunctionArgs) {
+    const client = await redisDB();
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    
+    const cachedResponse = await client.get(cacheKey);
     if (cachedResponse) {
-        return Response.json(cachedResponse);
+        return Response.json(JSON.parse(cachedResponse));
     }
     let gameVisits = 0;
     let totalGames = 0;
@@ -50,6 +52,6 @@ export async function loader() {
         }
     };
 
-    cache.set(cacheKey, response);
+    await client.set(cacheKey, JSON.stringify(response), { EX: 120 });
     return Response.json(response);
 }

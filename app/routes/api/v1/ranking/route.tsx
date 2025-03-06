@@ -1,28 +1,19 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import RateLimiter from '~/lib/RateLimiter';
 import * as ServerFunctions from "~/lib/Utilities/server";
-import ErrorCodes from "~/lib/json/errorCodes.json";
-import redisDB from "~/lib/redisDB";
 
+import Ranks, {IRanks} from "~/models/Ranks";
 import User from "~/models/User";
+
+import ErrorCodes from "~/lib/json/errorCodes.json";
 
 const AuthenticationFunctions = ServerFunctions.Authentication;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-    let canAccess = RateLimiter(request, "signup_get", 5 * 1000, 50)
-    if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
+    const limiter = RateLimiter(request)
+    if (!limiter) return new Response(JSON.stringify({ error: "Too many requests, slow down!" }), { status: 429 });
+    
     const cookies = request.headers.get("Cookie");
-
-    const client = await redisDB();
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    try {
-        const userInfoCache = await client.get(`userinfo:${ip}`)
-        if (userInfoCache) {
-            return Response.json(JSON.parse(userInfoCache))
-        }
-    } catch (er) { 
-        // Can't connect to redis.
-     }
 
     try {
         const refreshToken = await AuthenticationFunctions.refreshTokenCookie.parse(cookies);
@@ -30,10 +21,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
         const userid = Number(userInfo.id);
         const userSchema = await User.findOne({ userid });
         const userData = ServerFunctions.GetUserInfoServer(userSchema);
-        if (client) {
-            await client.set(`userinfo:${ip}`, JSON.stringify(userData), { EX: 30 })
-        }
-        return Response.json(userData)
+        const rankNumber = userData.rank ? Number(userData.rank) : -1;
+        const rankInfo = await Ranks.findOne({ rankId : rankNumber });
+        return Response.json(rankInfo.toObject())
     } catch (er) {
         return new Response("Unauthorized", { status: ErrorCodes.UNAUTHORIZED });
     }
