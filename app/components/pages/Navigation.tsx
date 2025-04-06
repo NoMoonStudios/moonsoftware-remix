@@ -1,10 +1,27 @@
+
 import { Link } from "@remix-run/react";
+import { AnimatePresence, motion } from 'motion/react';
 import { Button } from "~/components/ui/button";
 import { UserInfo } from "~/types/init";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { useState } from "react";
+
+function AccountMenu({userInfo}: {userInfo: UserInfo | undefined}) {
+    return <motion.div 
+    className="absolute w-[200px] p-2 right-0 top-full flex flex-col gap-2"
+    initial={{ opacity: 0, x: 100 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: 100 }}
+    >
+        <Button variant={"outline"} className="cursor-pointer">Profile</Button>
+        <Button variant={"outline"} className="cursor-pointer">Account</Button>
+        <Button variant={"outline"} className="cursor-pointer">Signout</Button>
+    </motion.div>
+}
 
 export default function Navigation({ userInfo = undefined }: { userInfo: UserInfo | undefined }) {
+    const [menuVisible, setMenuVisible] = useState(false)
     return (
         <div className="flex flex-row backdrop-blur-lg items-center z-10 justify-center">
             <header className="flex flex-row p-5 gap-7 w-[70vw]">
@@ -25,8 +42,14 @@ export default function Navigation({ userInfo = undefined }: { userInfo: UserInf
                 {/* Right panel links */}
                 {
                     userInfo ? <>
-                        <div className="flex flex-row gap-2 mt-auto mb-auto ml-auto text-sm">
-                            <div className="flex flex-row gap-2 cursor-pointer select-none">
+                        <div className="flex flex-row gap-2 mt-auto mb-auto ml-auto text-sm relative">
+                            <AnimatePresence>
+                                { menuVisible && <AccountMenu userInfo={userInfo} />}
+                            </AnimatePresence>
+                            
+                            { /* eslint-disable jsx-a11y/click-events-have-key-events */}
+                            { /* being disabled is skill issue */ }
+                            <div className="flex flex-row gap-2 cursor-pointer select-none" role="button" tabIndex={0} onClick={() => setMenuVisible(!menuVisible)}>
                                 <Avatar>
                                     <AvatarImage src={userInfo.avatar} alt={`@${userInfo.username}`} />
                                     <AvatarFallback>{userInfo.username}</AvatarFallback>

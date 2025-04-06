@@ -31,6 +31,18 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Moon Software" },
     { name: "description", content: "Elevate your game with stunning assets, UI/UX, and environments from skilled developers." },
+    {
+      property: "og:image",
+      content: "/banner.webp",
+    },
+    {
+        property: "og:image:width",
+        content: "1280",
+    },
+    {
+        property: "og:image:height",
+        content: "720",
+    }
   ];
 };
 
@@ -73,7 +85,7 @@ export default function Index() {
             <motion.div
               whileHover="hover"
               className="inline-block"
-            ><Button variant="glow" className="flex items-center gap-2">
+            ><Button variant="glow" className="flex cursor-pointer items-center gap-2">
                 Get Started
                 <motion.span
                   initial={{ opacity: 0, x: -5, display: 'none' }}
@@ -232,7 +244,7 @@ export default function Index() {
 
               </div>
 
-              <Button variant={"outline"} className="mt-[30px] px-10 py-6 text-xl" size={"lg"} color="white">Contact</Button>
+              <Button variant={"outline"} className="mt-[30px] px-10 py-6 text-xl cursor-pointer" size={"lg"} color="white">Contact</Button>
             </div>
           </div>
 

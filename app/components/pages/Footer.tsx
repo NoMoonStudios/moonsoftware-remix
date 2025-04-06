@@ -34,9 +34,9 @@ export default function Navigation() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <a href="/" className="flex flex-row gap-1 hover:text-gray-300"><FaXTwitter size={20} /> Twitter</a>
+                    <a href="https://x.com/moonsftwrroblox?s=21" className="flex flex-row gap-1 hover:text-gray-300"><FaXTwitter size={20} /> Twitter</a>
                     <a href="/" className="flex flex-row gap-1 hover:text-gray-300"><FaLinkedin size={20} /> LinkedIn</a>
-                    <a href="/" className="flex flex-row gap-1 hover:text-gray-300"><FaDiscord size={20} /> Discord</a>
+                    <a href="https://discord.gg/robloxdevelopers" className="flex flex-row gap-1 hover:text-gray-300"><FaDiscord size={20} /> Discord</a>
                 </div>
             </div>
 
