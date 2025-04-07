@@ -33,15 +33,7 @@ export const meta: MetaFunction = () => {
     { name: "description", content: "Elevate your game with stunning assets, UI/UX, and environments from skilled developers." },
     {
       property: "og:image",
-      content: "/banner.webp",
-    },
-    {
-        property: "og:image:width",
-        content: "1280",
-    },
-    {
-        property: "og:image:height",
-        content: "720",
+      content: "https://media.discordapp.net/attachments/1315081714636165183/1358665688486514820/Hj2SUle.png?ex=67f4ab86&is=67f35a06&hm=f80a176f9656be6f8162e53f0e75ecaa5eb64a579f1ed351c7db9cbe901b6e90&=&format=webp&quality=lossless&width=1872&height=674",
     }
   ];
 };
