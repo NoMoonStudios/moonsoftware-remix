@@ -31,17 +31,15 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <>
-        <div className="h-screen flex justify-center text-center">
-          <div className="flex flex-col mt-auto mb-auto gap-4 justify-center items-center">
-            <h1 className="font-bold text-7xl">
-              {error.status}
-            </h1>
-            <p> {error.statusText}</p>
-            <p>{error.data}</p>
-          </div>
+      <div className="h-screen flex justify-center text-center">
+        <div className="flex flex-col mt-auto mb-auto gap-4 justify-center items-center">
+          <h1 className="font-bold text-7xl">
+            {error.status}
+          </h1>
+          <p> {error.statusText}</p>
+          <p>{error.data}</p>
         </div>
-      </>
+      </div>
     );
   } else if (error instanceof Error) {
     return (
