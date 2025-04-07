@@ -10,13 +10,13 @@ import { compare } from 'bcrypt';
 const AuthenticationFunctions = ServerFunctions.Authentication;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-    let canAccess = RateLimiter(request, "signin_get", 5 * 1000, 3)
+    const canAccess = RateLimiter(request, "signin_get", 5 * 1000, 3)
     if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
     return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-    let canAccess = RateLimiter(request, "signin_post", 5 * 1000, 3)
+    const canAccess = RateLimiter(request, "signin_post", 5 * 1000, 3)
     if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
     if (request.method !== "POST") return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
 
@@ -29,10 +29,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
     await dbConnect();
     const user = await User.findOne({ username: username });
-    if (!user) return new Response("Invalid username", { status: ErrorCodes.BAD_REQUEST });
-    let passwordHash = user.passwordHash
+    if (!user) return new Response("Invalid credentials", { status: ErrorCodes.UNAUTHORIZED });
+
+    const passwordHash = user.passwordHash
     const compared = await compare(password, passwordHash);
-    if (!compared) return new Response("Invalid password", { status: ErrorCodes.BAD_REQUEST });
+    if (!compared) return new Response("Invalid credentials", { status: ErrorCodes.UNAUTHORIZED });
+
 
     const accessToken = AuthenticationFunctions.generateAccessToken({ id: user.userid, username: user.username });
     const refreshToken = AuthenticationFunctions.generateRefreshToken({ id: user.userid });

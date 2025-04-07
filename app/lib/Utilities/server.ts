@@ -5,6 +5,12 @@ export function GetUserInfoServer(userSchema: any) {
     return userData;
 }
 
+export function GetPublicUserProfileServer(userSchema: any) {
+    const userData = GetUserInfoServer(userSchema)
+    const {sessions, email, discord, isEmailVerified, ...publicUserData} = userData;
+    return publicUserData
+}
+
 export function Test() {
     return true
 }

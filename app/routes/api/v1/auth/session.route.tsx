@@ -9,14 +9,17 @@ import User from "~/models/User";
 const AuthenticationFunctions = ServerFunctions.Authentication;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-    let canAccess = RateLimiter(request, "signup_get", 5 * 1000, 50)
+    const canAccess = RateLimiter(request, "signup_get", 5 * 1000, 50)
     if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
     const cookies = request.headers.get("Cookie");
-
+    
+    const refreshToken = await AuthenticationFunctions.refreshTokenCookie.parse(cookies);
+    const userInfo = await AuthenticationFunctions.decodeRefreshToken(refreshToken);
+    const userid = Number(userInfo.id);
     const client = await redisDB();
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
+
     try {
-        const userInfoCache = await client.get(`userinfo:${ip}`)
+        const userInfoCache = await client.get(`userinfo:${userid}`)
         if (userInfoCache) {
             return Response.json(JSON.parse(userInfoCache))
         }
@@ -25,13 +28,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
      }
 
     try {
-        const refreshToken = await AuthenticationFunctions.refreshTokenCookie.parse(cookies);
-        const userInfo = await AuthenticationFunctions.decodeRefreshToken(refreshToken);
-        const userid = Number(userInfo.id);
         const userSchema = await User.findOne({ userid });
         const userData = ServerFunctions.GetUserInfoServer(userSchema);
+        
         if (client) {
-            await client.set(`userinfo:${ip}`, JSON.stringify(userData), { EX: 30 })
+            await client.set(`userinfo:${userid}`, JSON.stringify(userData), { EX: 30 })
         }
         return Response.json(userData)
     } catch (er) {

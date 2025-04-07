@@ -14,9 +14,9 @@ function AccountMenu({userInfo}: {userInfo: UserInfo | undefined}) {
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: 100 }}
     >
-        <Button variant={"outline"} className="cursor-pointer">Profile</Button>
-        <Button variant={"outline"} className="cursor-pointer">Account</Button>
-        <Button variant={"outline"} className="cursor-pointer">Signout</Button>
+        <Button variant={"outline"} className="cursor-pointer"><Link to={`/${userInfo?.username || ''}`}>Profile</Link></Button>
+        <Button variant={"outline"} className="cursor-pointer"><Link to={'/my/account'}>Account</Link></Button>
+        <Button variant={"outline"} className="cursor-pointer"><a href={'/logout'}>Logout</a></Button>
     </motion.div>
 }
 
@@ -24,7 +24,7 @@ export default function Navigation({ userInfo = undefined }: { userInfo: UserInf
     const [menuVisible, setMenuVisible] = useState(false)
     return (
         <div className="flex flex-row backdrop-blur-lg items-center z-10 justify-center">
-            <header className="flex flex-row p-5 gap-7 w-[70vw]">
+            <header className="flex flex-row p-5 gap-7 w-[70vw] h-[75px]">
                 {/* Logo Area */}
                 <Link to="/" className="flex flex-row gap-1 h-auto select-none">
                     <img src="/moon_icon.png" draggable={false} className="mt-auto mb-auto w-[30px] h-[30px]" loading="lazy" alt="icon" />
