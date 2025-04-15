@@ -14,16 +14,16 @@ function AccountMenu({userInfo}: {userInfo: UserInfo | undefined}) {
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: 100 }}
     >
-        <Button variant={"outline"} className="cursor-pointer"><Link to={`/${userInfo?.username || ''}`}>Profile</Link></Button>
-        <Button variant={"outline"} className="cursor-pointer"><Link to={'/my/account'}>Account</Link></Button>
-        <Button variant={"outline"} className="cursor-pointer"><a href={'/logout'}>Logout</a></Button>
+        <Link to={`/${userInfo?.username || ''}`}><Button variant={"outline"} className="w-full cursor-pointer">Profile</Button></Link>
+        <Link to={'/settings'}><Button variant={"outline"} className="w-full cursor-pointer">Settings</Button></Link>
+        <a href={'/logout'}><Button variant={"outline"} className="w-full cursor-pointer">Logout</Button></a>
     </motion.div>
 }
 
 export default function Navigation({ userInfo = undefined }: { userInfo: UserInfo | undefined }) {
     const [menuVisible, setMenuVisible] = useState(false)
     return (
-        <div className="flex flex-row backdrop-blur-lg items-center z-10 justify-center">
+        <div className="top-0 w-full z-50 flex flex-row bg-gradient-to-b from-black to-transparent backdrop-blur-lg items-center justify-center">
             <header className="flex flex-row p-5 gap-7 w-[70vw] h-[75px]">
                 {/* Logo Area */}
                 <Link to="/" className="flex flex-row gap-1 h-auto select-none">

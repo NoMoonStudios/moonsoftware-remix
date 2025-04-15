@@ -64,7 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="bg-transparent">
+      <body className="bg-transparent h-screen">
         {children}
         <ScrollRestoration />
         <Scripts />
