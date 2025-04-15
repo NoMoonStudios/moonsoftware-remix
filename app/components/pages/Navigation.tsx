@@ -55,7 +55,7 @@ export default function Navigation({ userInfo = undefined }: { userInfo: UserInf
                                     <AvatarFallback>{userInfo.username}</AvatarFallback>
                                 </Avatar>
                                 <h1 className="mt-auto mb-auto">
-                                    {userInfo.username}
+                                    {userInfo.displayName}
                                 </h1>
                             </div>
                         </div>

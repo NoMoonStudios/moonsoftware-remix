@@ -8,6 +8,7 @@ interface Settings {
 export interface IUser extends Document {
     displayName : string;
     username : string;
+    pronouns : string;
 
     userid : string;
     email : string;
@@ -20,7 +21,11 @@ export interface IUser extends Document {
     isEmailVerified: boolean;
 
     roblox_userid : number;
-    badges: Array<string>;
+    badges: Array<number>;
+    customBadge: {
+        name: string;
+        color: string;
+    }
 
     bio:string;
     joinedOn: Date;
@@ -51,6 +56,7 @@ export interface IUser extends Document {
 const schema : Schema = new mongoose.Schema({
     displayName : String,
     username : String,
+    pronouns : String,
 
     userid : String,
     email : String,
@@ -63,7 +69,11 @@ const schema : Schema = new mongoose.Schema({
     isVerified : Boolean,
 
     roblox_userid : Number,
-    badges: Array<String>,
+    badges: Array<number>,
+    customBadge: {
+        name: String,
+        color: String,
+    },
 
     bio:String,
     joinedOn: Date,
@@ -77,7 +87,7 @@ const schema : Schema = new mongoose.Schema({
         username: String,
         avatar:String,
         refresh_token: String,
-        connections: Array<{}>,
+        connections: Array<object>,
     },
 
     roblox : {

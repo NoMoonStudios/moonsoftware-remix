@@ -1,6 +1,4 @@
-export function Test() {
-    return true
-}
+
 
 export async function GetUserSession() {
     try {

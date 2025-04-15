@@ -42,16 +42,16 @@ export async function GetUserId(request: Request) {
     if (!cookies) return
     const refreshToken = await Authentication.refreshTokenCookie.parse(cookies);
     const userInfo = await Authentication.decodeRefreshToken(refreshToken);
-    return Number(userInfo.id);
+    return userInfo.id.toString();
 }
 
-async function GetUserSchemaWithUserId(userid: number){
+async function GetUserSchemaWithUserId(userid: string): Promise<UserInfo | null> {
     return await User.findOne({ userid })
 } 
 
-export async function GetUserSchema(request: Request){
+export async function GetUserSchema(request: Request): Promise<UserInfo | null> {
     const userid = await GetUserId(request);
-    if (!userid) return
+    if (!userid) return null
     return await GetUserSchemaWithUserId(userid)
 }
 
@@ -70,7 +70,9 @@ export async function GetUserPrivateData(request: Request) {
      }
 
     try {
-        const data = (await GetUserSchemaWithUserId(userid)).toObject();
+        const schema = await GetUserSchemaWithUserId(userid)
+        if (!schema) return
+        const data = (schema).toObject();
         
         if (client) {
             await client.set(`private_userdata:${userid}`, JSON.stringify(data), { EX: 30 })
@@ -81,6 +83,16 @@ export async function GetUserPrivateData(request: Request) {
     }
 }
 
+export async function ClearUserCache(userid: string) {
+    const client = await redisDB();
+    if (client) {
+        await client.del(`private_userdata:${userid}`); 
+        await dbConnect();
+        const data = await GetUserSchemaWithUserId(userid)
+        if (!data) return
+        await client.del(`userprofile:${data.username}`); 
+    }
+}
 
 export async function GetUserData(request: Request) {
     const data = await GetUserPrivateData(request);

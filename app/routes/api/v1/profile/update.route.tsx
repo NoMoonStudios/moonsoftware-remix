@@ -24,7 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const formData = await unstable_parseMultipartFormData(
       request,
       async ({ name, data, filename }: UploadHandlerPart): Promise<string | File> => {
-        if (name === "avatar") {
+        if (name == "avatar" || name == "banner") {
           if (filename) {
             return await UploadFile(data);
           }
@@ -36,17 +36,35 @@ export async function action({ request }: ActionFunctionArgs) {
     });
     if (!formData) return new Response("Failed to parse form data", { status: 400 });
     const displayName = formData.get("displayName");
+    const bio = formData.get("bio");
     const avatar = formData.get("avatar");
-
-    userSchema.displayName = displayName || userSchema.displayName;
-    if (avatar) {
-      if (userSchema.avatar) await DeleteFile(userSchema.avatar);
-      userSchema.avatar = avatar
+    const banner = formData.get("banner");
+    const pronouns = formData.get("pronouns");
+    if (typeof displayName !== "string" || typeof bio !== "string" || typeof pronouns !== "string") {
+      return new Response("Bad request", { status: 400 });
     }
+    const av = avatar && typeof avatar === "string" && { avatar: avatar }
+    if (av) {
+      DeleteFile(userSchema.avatar);
+    }
+
+    const bn = banner && typeof banner === "string" && { banner: banner }
+    if (bn) {
+      DeleteFile(userSchema.banner);
+    }
+
+    userSchema.set({
+      displayName: displayName || userSchema.displayName,
+      pronouns: pronouns || "",
+      bio: bio || "",
+      ...av,
+      ...bn
+    });
+
     await userSchema.save();
+    await ServerFunctions.ClearUserCache(userSchema.userid);
 
     return new Response("Success", { status: 200 });
-    
   } catch (err) {
     console.log(err);
     

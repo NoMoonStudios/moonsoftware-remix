@@ -29,6 +29,7 @@ export async function UploadFile(data: AsyncIterable<Uint8Array>): Promise<strin
 }
 
 export async function DeleteFile(url: string): Promise<null | void> {
+  if (!url) return null;
   if (!isCloudinaryUrl(url)) return null;
   
   const publicId = extractPublicIdFromUrl(url);
@@ -48,6 +49,7 @@ export async function DeleteFile(url: string): Promise<null | void> {
 
 // Helper functions
 function isCloudinaryUrl(url: string): boolean {
+  if (!url) return false;
   return url.includes('res.cloudinary.com');
 }
 
