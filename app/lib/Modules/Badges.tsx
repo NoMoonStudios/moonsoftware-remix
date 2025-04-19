@@ -29,7 +29,7 @@ const badges: {[key: number]: BadgeInfo} = {
     badge: <Shield className="text-orange-500" />
   },
   5: {
-    name: "Roblox Developers",
+    name: "RobloxDevs Staff",
     badge: <img src="/badges/rd.png" alt="RD" />
   }
 }
