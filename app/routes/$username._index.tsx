@@ -7,45 +7,11 @@ import { UserInfo } from "~/types/init";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import badges, { BadgeInfo } from "~/lib/Modules/Badges";
-import { AnimatePresence, motion } from "motion/react";
 import { darkenHexColor } from "~/lib/Utilities/ClientFunctions/Color";
+import ProfileBadges from "~/components/ui/profile-badges";
+import { Pill } from "lucide-react";
 
-const BadgeWrapper = ({badge}: {badge: BadgeInfo}) => {
-  const [isHovered, setIsHovered] = useState(false);
-  console.log(badge.glowColor || "#fff");
-  
-  return (
-    <div 
-      className="relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="relative w-7 h-7 p-1 flex items-center justify-center duration-100 rounded hover:bg-gray-950/50 cursor-pointer">
-        {badge.badge}
-        {badge.glow && <div 
-          className={'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-radial opacity-50 to-transparent via-transparent'} 
-          style={{'--tw-gradient-from': badge.glowColor || "#fff"} as React.CSSProperties}
-        />}
-      </div>
 
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 5 }}
-            transition={{ duration: 0.2 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 rounded-md whitespace-nowrap"
-          >
-            {badge.name}
-            <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full w-2 h-2 bg-gray-900 rotate-45" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
 
 const ProfileOverview = ({profileInfo}: {profileInfo: UserInfo}) => {
   return <div className="flex flex-col gap-4 w-[250px] ">
@@ -74,13 +40,7 @@ const ProfileOverview = ({profileInfo}: {profileInfo: UserInfo}) => {
         </h1>
       </div>
       <div className="flex flex-row gap-2 items-center">
-        {
-          (profileInfo.isVerified || profileInfo.badges.length > 0) &&
-          <div className="bg-gray-950/50 backdrop-blur-lg rounded flex flex-row" >
-            {profileInfo.isVerified && <BadgeWrapper badge={badges[1]}/>}
-            {profileInfo.badges.filter((badge) => badges[badge]).map((badge) =><BadgeWrapper key={badge} badge={badges[badge]}/>) }
-          </div>
-        }
+        <ProfileBadges profileInfo={profileInfo} className="bg-gray-950/50 backdrop-blur-lg rounded "/>
       </div>
       { profileInfo.bio &&
         <div className="flex flex-col gap-2 p-3 bg-gray-950/50 backdrop-blur-lg rounded text-gray-200">
@@ -148,7 +108,9 @@ const SkeletonProfile = () => {
 const Profile = () => {
   const [userInfo, setUserInfo] = useState<UserInfo|undefined>();
   const [profileInfo, setProfileInfo] = useState<UserInfo|undefined>();
-  const [notFound, setNotFound] = useState(false)
+  const [error, setError] = useState(false)
+  const [errorCode, setErrorCode] = useState(0)
+  const [errorText, setErrorText] = useState("")
   const params = useParams();
   useEffect(() => {
     const fetchData = async () => {
@@ -160,33 +122,35 @@ const Profile = () => {
         const response = await fetch(`/api/v1/users/${params.username}`);
         
         if (response.status === 404) {
-          setNotFound(true);
+          setError(true);
           return;
         }
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          setErrorCode(response.status)
+          setErrorText(response.statusText)
+          throw new Error(response.statusText);
         }
         const data = await response.json();
-        if (!data) setNotFound(true);
+        if (!data) setError(true);
         setProfileInfo(data);
       } catch (error) {
-        console.error('Fetch error:', error);
-        setNotFound(true);
+        console.error(error)
+        setError(true);
       }
     };
     fetchData();
 
   }, [params])
 
-  if (notFound) {
+  if (error) {
     return (
-      <div className="h-screen flex justify-center text-center">
+      <div className="h-screen flex justify-center text-center ">
         <div className="flex flex-col mt-auto mb-auto gap-4 justify-center items-center">
           <h1 className="font-bold text-7xl">
-            404
+            Error {errorCode}
           </h1>
-          <p>Not Found</p>
-          <p>Error: No user found</p>
+          <p>{errorText}</p>
+          <p className="opacity-50 italic flex flex-row gap-2">{errorCode === 429 && <><Pill className="animate-spin duration-2000"/> Take a chill pill</>}</p>
         </div>
       </div>
     )
