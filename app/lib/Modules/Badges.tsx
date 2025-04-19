@@ -34,8 +34,20 @@ const badges: {[key: number]: BadgeInfo} = {
   },
   6: {
     name: "Server Booster",
-    badge: <img src="/badges/Boost1.png" alt="SB" />
-  }
+    badge: <img src="/badges/booster.png" alt="SB" />
+  },
+  7: {
+    name: "DevSec Staff",
+    badge: <img src="/badges/devsec.png" alt="DevSec" />
+  },
+  8: {
+    name: "Scam Investigator",
+    badge: <img src="/badges/scaminvestigator.png" alt="SI" />
+  },
+  9: {
+    name: "Cato",
+    badge: <img src="/badges/cato.png" alt="Cato" />
+  },
 }
 
 export default badges
