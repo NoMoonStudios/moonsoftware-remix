@@ -18,13 +18,14 @@ export async function GetUserByUsername(username: string){
         // Can't connect to redis.
     }
     if (userInfoCache) return userInfoCache
-    const data = (await User.findOne({ username: username })).toObject();
-    if (!data) return
+    const schema = (await User.findOne({ username: username }))
+    if (!schema) return
+    const data = schema.toObject();
     
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {passwordHash, __v, _id, ...userData} = data;
     if (client) {
-        await client.set(`userprofile:${username}`, JSON.stringify(userData), { EX: 30 })
+        await client.set(`userprofile:${username}`, JSON.stringify(userData), { EX: 60 });
     }
     return userData
 }
@@ -75,7 +76,7 @@ export async function GetUserPrivateData(request: Request) {
         const data = (schema).toObject();
         
         if (client) {
-            await client.set(`private_userdata:${userid}`, JSON.stringify(data), { EX: 30 })
+            await client.set(`private_userdata:${userid}`, JSON.stringify(data), { EX: 60 })
         }
         return data
     } catch (er) {

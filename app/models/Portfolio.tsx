@@ -1,29 +1,39 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface PortfolioLink {
+export interface PortfolioLink  {
+    platform: string,
+    text: string,
     url: string,
-    name: string,
-    icon: string
-}
+    iconColor?: string,
+    iconUrl?: string
+  }
 
-export interface Portfolio extends Document {
+export interface PortfolioInfo extends Document {
     layout: string,
     userid: string,
+    enabled: boolean,
     updated: Date,
-    bio: string,
+    about: string,
     banner: string,
     avatar: string,
-    links: Array<PortfolioLink>
+    links: Array<PortfolioLink>,
+    displayName: string,
+    showTimestamps: boolean,
     // these below are added dynamically in the request
-    username: string,
+    createdAt: Date,
     isVerified: boolean,
+    username: string,
+    badges: Array<number>,
 }
 
 const schema : Schema = new mongoose.Schema({
     layout: String,
     userid: String,
     updated: Date,
-    bio: String,
+    enabled: Boolean,
+    about: String,
+    displayName: String,
+    showTimestamps: Boolean,
     banner: String,
     avatar: String,
     links: Array<PortfolioLink>,

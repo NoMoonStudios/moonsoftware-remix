@@ -23,13 +23,15 @@ export async function action({ request }: ActionFunctionArgs) {
     if (!userSchema) return new Response("Unauthorized", { status: ErrorCodes.UNAUTHORIZED });
     const formData = await unstable_parseMultipartFormData(
       request,
-      async ({ name, data, filename }: UploadHandlerPart): Promise<string | File> => {
+      async ({ name, data, filename }: UploadHandlerPart): Promise<string | null> => {
         if (name == "avatar" || name == "banner") {
           if (filename) {
             return await UploadFile(data);
           }
+          return null
         }
-        if (filename) return filename;
+        if (filename) return null
+        
         const chunks = [];
         for await (const chunk of data) chunks.push(chunk);
         return Buffer.concat(chunks).toString('utf-8');

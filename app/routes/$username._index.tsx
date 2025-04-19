@@ -13,15 +13,20 @@ import { darkenHexColor } from "~/lib/Utilities/ClientFunctions/Color";
 
 const BadgeWrapper = ({badge}: {badge: BadgeInfo}) => {
   const [isHovered, setIsHovered] = useState(false);
-
+  console.log(badge.glowColor || "#fff");
+  
   return (
     <div 
       className="relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="w-7 h-7 p-1 flex items-center justify-center duration-100 rounded hover:bg-gray-950/50 cursor-pointer">
+      <div className="relative w-7 h-7 p-1 flex items-center justify-center duration-100 rounded hover:bg-gray-950/50 cursor-pointer">
         {badge.badge}
+        {badge.glow && <div 
+          className={'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-radial opacity-50 to-transparent via-transparent'} 
+          style={{'--tw-gradient-from': badge.glowColor || "#fff"} as React.CSSProperties}
+        />}
       </div>
 
       <AnimatePresence>
@@ -50,7 +55,7 @@ const ProfileOverview = ({profileInfo}: {profileInfo: UserInfo}) => {
     </Avatar>
     <div className="flex flex-col justify-center gap-2">
       <div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2 items-center flex-wrap">
           <h1 className="font-bold text-3xl">
             {profileInfo.displayName}
           </h1>
@@ -97,7 +102,7 @@ const ProfilePage = ({profileInfo}: {profileInfo: UserInfo}) => {
   const items = {
     "Assets": "Assets", 
     "Games": "Games",
-    "Hisotry": "Hisotry", 
+    "History": "History", 
   }
   const buttonStyle = "h-12 cursor-pointer duration-200 rounded-none border-b-4 hover:border-white hover:bg-transparent"
   

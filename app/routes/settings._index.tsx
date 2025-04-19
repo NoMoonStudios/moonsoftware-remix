@@ -2,14 +2,31 @@ import { SettingsIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { CgSpinner } from "react-icons/cg";
+import { toast, Toaster } from "sonner";
 import Navigation from "~/components/pages/Navigation"
+import Portfolio from "~/components/pages/Settings/Portfolio";
 import Profile from "~/components/pages/Settings/Profile";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { GetUserSession } from "~/lib/Utilities/client";
 import { UserInfo } from "~/types/init";
 
+const Temp = ({userInfo}: {userInfo: UserInfo}) => {
+  const isMula = userInfo?.userid == '81801176'
+  const isCato = userInfo?.userid == '96127444'
+  
+  useEffect(() => {
+    if (isMula) {
+      Promise.resolve().then(() => {
+        toast.warning("Fuck off mula this shit ain't ready yet");
+      });
+    }
+  }, [])
 
+  if (!userInfo) return <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Unavailable</div>;
+  if (!isMula && !isCato) return <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Unavailable</div>;
+  return <Portfolio userInfo={userInfo}/>
+}
 const Settings = () => {
   const [userInfo, setUserInfo] = useState<UserInfo|undefined>();
   const [selected, setSelected] = useState("Profile")
@@ -28,7 +45,7 @@ const Settings = () => {
   
   const items = userInfo ? {
     Profile: <Profile userInfo={userInfo} onUpdate={LoadUser}/>,
-    Portfolio: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
+    Portfolio: <Temp userInfo={userInfo}/>,
     Account: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
     Commisions: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
     Billing: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
@@ -96,6 +113,8 @@ const Settings = () => {
               }
             </AnimatePresence>
           </div>
+
+          <Toaster theme="dark" />
         </div>
       </div>
     </div>

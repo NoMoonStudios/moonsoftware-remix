@@ -1,6 +1,9 @@
-import { Image } from "lucide-react";
+import { Image, Trash } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CgSpinner } from "react-icons/cg";
+import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -17,8 +20,6 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
   const [bannerPreview, setBannerPreview] = useState<string>(userInfo.banner);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -39,11 +40,21 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
     }
   };
 
+  const deleteBanner = async () => {
+    setLoading(true);
+    const response = await fetch("/api/v1/profile/removeBanner", {
+      method: "POST",
+    });
+    if (!response.ok) throw new Error("Failed to delete banner");
+    setBannerFile(null);
+    onUpdate();
+    setLoading(false);
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      setError(null);
-      setSuccess(false);
+      
       const formData = new FormData();
       formData.append("displayName", displayName);
       formData.append("bio", bio);
@@ -59,21 +70,31 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
         body: formData,
       });
       if (!response.ok) throw new Error("Failed to update profile");
-      setSuccess(true);
+      toast.success("Profile updated successfully");
       onUpdate();
-      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update profile");
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setDisplayName(userInfo.displayName);
+    setPronouns(userInfo.pronouns);
+    setBio(userInfo.bio);
+    setAvatarPreview(userInfo.avatar);
+    setBannerPreview(userInfo.banner);
+  }, [userInfo]);
 
   return (
     <div className="h-full flex flex-col gap-6">
       {/* Avatar Upload */}
       <div className="flex flex-row items-center gap-2">
         <div className="flex items-center gap-4">
+
+
+          {/* AVATAR */}
           <div className="relative">
             <img
               src={avatarPreview || "/default-avatar.png"}
@@ -88,12 +109,15 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
               <Image className="w-8 h-8"/>
             </motion.label>
           </div>
+
+
+          {/* BANNER */}
           <div className="relative bg-black rounded w-64 h-32">
             {bannerPreview &&
               <img
-              src={bannerPreview}
-              alt="Banner preview"
-              className="w-full h-full rounded object-cover"
+                src={bannerPreview}
+                alt="Banner preview"
+                className="w-full h-full rounded object-cover"
               />
             }
             <motion.label 
@@ -102,8 +126,36 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
               whileHover={{ opacity: .5 }}
             >
               <Image className="w-8 h-8"/>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  {bannerPreview && <Button variant={'secondary'} className="absolute z-10 top-2 right-2 w-8 h-8 rounded flex justify-center items-center cursor-pointer">
+                  <Trash className="w-8 h-8"/>
+                  </Button>}
+                </AlertDialogTrigger>
+                <AlertDialogPortal >
+                  <AlertDialogOverlay />
+                  <AlertDialogContent>
+                    <AlertDialogTitle>
+                      Are you sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action will take effect immediately
+                    </AlertDialogDescription>
+                    <div className="flex flex-row gap-2 justify-end">
+                      
+                    <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="cursor-pointer" onClick={deleteBanner}>Remove Banner</AlertDialogAction>
+                    </div>
+                  </AlertDialogContent>
+                </AlertDialogPortal>
+              </AlertDialog>
             </motion.label>
           </div>
+
+
+
+
+          {/* file inputs */}
           <input
             type="file"
             id="avatar"
@@ -155,11 +207,6 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
         />
       </div>
 
-
-      {/* Status Messages */}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-green-500 text-sm">Profile updated!</p>}
-
       {/* Save Button */}
       <div className="mt-auto flex justify-end">
       <Button
@@ -168,7 +215,7 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
           variant="outline"
           className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving..." : "Save Changes"}
+          {loading ? <><CgSpinner className="animate-spin"/>Saving...</> : "Save Changes"}
         </Button>
       </div>
     </div>
