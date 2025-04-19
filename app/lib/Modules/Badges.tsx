@@ -31,11 +31,10 @@ const badges: {[key: number]: BadgeInfo} = {
   5: {
     name: "RobloxDevs Staff",
     badge: <img src="/badges/rd.png" alt="RD" />
-
-  5: {
+  },
+  6: {
     name: "Server Booster",
     badge: <img src="/badges/Boost1.png" alt="SB" />
-
   }
 }
 
