@@ -16,6 +16,7 @@ const badges: {[key: number]: BadgeInfo} = {
     name: "Cato",
     className: "border-1 border-gray-700 bg-linear-to-t to-amber-800 from-black fill-black",
     arrowClassName: "fill-black bg-black",
+    glow: true,
     element: <div className="w-40 h-60 flex items-center flex-col select-none">
       <img src="/badges/cato.badge.png" alt="Cato" className="w-40 h-40" />
       <span className="text-xl font-bold italic tracking-widest leading-4 text-amber-400">Divine</span>
@@ -31,12 +32,11 @@ const badges: {[key: number]: BadgeInfo} = {
     glowColor: "#00c3ff",
     badge: <Verified className="text-sky-400" />,
     className: "border-1 border-gray-700",
-    element:<div className="w-30 h-45 flex items-center flex-col select-none">
-    <Verified className="w-20 h-20 mb-auto" />
+    element:<div className="w-25 h-25 flex items-center flex-col select-none">
+    <Verified className="w-10 h-10 mt-auto mb-auto" />
       
-      <span className="text-lg font-bold leading-4">Verified</span>
-      <span className="text-xl font-extrabold">User</span>
-      <p className="opacity-50 text-s mt-auto mb-2 text-center">This User is Verified by Moon Software</p>
+      <span className="text-md font-bold leading-4">Verified</span>
+      <p className="opacity-50 text-s mt-auto mb-1 text-center">Verified by Moon Software</p>
     </div>,
   },
   2: {
