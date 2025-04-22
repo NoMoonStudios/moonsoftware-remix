@@ -93,7 +93,7 @@ const badges: {[key: number]: BadgeInfo} = {
     badge: <img src="/badges/sod.webp" alt="SOD" />,
     description: "Verified School of Developers Staff"
   },
-  11: {
+  12: {
     name: "DEVNET Staff",
     badge: <img src="/badges/DNL.png" alt="DN" />,
     description: "Verified DEVNET Staff"
