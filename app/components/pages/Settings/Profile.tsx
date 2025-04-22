@@ -6,9 +6,11 @@ import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { UserInfo } from "~/types/init";
 const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpdate?: () => void }) => {
+  const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState(userInfo.displayName);
   const [pronouns, setPronouns] = useState(userInfo.pronouns);
   const [bio, setBio] = useState(userInfo.bio);
@@ -19,7 +21,6 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string>(userInfo.banner);
 
-  const [loading, setLoading] = useState(false);
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -43,7 +44,7 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
   const deleteBanner = async () => {
     setLoading(true);
     const response = await fetch("/api/v1/profile/removeBanner", {
-      method: "POST",
+          method: "POST",
     });
     if (!response.ok) throw new Error("Failed to delete banner");
     setBannerFile(null);
@@ -78,6 +79,7 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     setDisplayName(userInfo.displayName);
@@ -88,7 +90,12 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
   }, [userInfo]);
 
   return (
-    <div className="h-full flex flex-col gap-6">
+    <div className="h-full flex flex-col gap-6 pt-2">
+      <div className="text-sm text-muted-foreground text-center absolute top-0 left-0 bg-gray-900 border-b-1 border-r-1 h-8 rounded-br w-70 flex flex-row justify-evenly items-center gap-2">
+       <span>Experimental</span>
+       <Separator orientation="vertical"  />
+       <span>Subject to Change</span>
+      </div>
       {/* Avatar Upload */}
       <div className="flex flex-row items-center gap-2">
         <div className="flex items-center gap-4">

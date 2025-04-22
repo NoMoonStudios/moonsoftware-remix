@@ -34,9 +34,10 @@ export async function DeleteFile(url: string): Promise<null | void> {
   
   const publicId = extractPublicIdFromUrl(url);
   if (!publicId) return null;
-  console.log(publicId);
   
   return new Promise((resolve, reject) => {
+    console.log(publicId);
+    
     cloudinary.uploader.destroy(publicId, (error, result) => {
       if (error) return reject(error);
       if (result.result !== "ok") {

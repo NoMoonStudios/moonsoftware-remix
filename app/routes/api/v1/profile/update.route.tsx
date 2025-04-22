@@ -64,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     await userSchema.save();
-    await ServerFunctions.ClearUserCache(userSchema.userid);
+    await ServerFunctions.ClearProfileCache(userSchema.userid);
 
     return new Response("Success", { status: 200 });
   } catch (err) {

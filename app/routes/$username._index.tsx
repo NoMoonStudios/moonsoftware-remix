@@ -1,4 +1,4 @@
-import { useParams } from "@remix-run/react";
+import { Link, useParams } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import Navigation from "~/components/pages/Navigation"
 import { Skeleton } from "~/components/ui/skeleton";
@@ -9,12 +9,12 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { darkenHexColor } from "~/lib/Utilities/ClientFunctions/Color";
 import ProfileBadges from "~/components/ui/profile-badges";
-import { Pill } from "lucide-react";
+import { ArrowRight, Pill } from "lucide-react";
 
 
 
 const ProfileOverview = ({profileInfo}: {profileInfo: UserInfo}) => {
-  return <div className="flex flex-col gap-4 w-[250px] ">
+  return <div className="flex flex-col gap-4 w-[300px] ">
     <Avatar className="w-35 h-35">
         <AvatarImage src={profileInfo.avatar} alt={`@${profileInfo.username}`} />
         <AvatarFallback>{profileInfo.username}</AvatarFallback>
@@ -51,9 +51,13 @@ const ProfileOverview = ({profileInfo}: {profileInfo: UserInfo}) => {
         <p className="whitespace-pre-line">{profileInfo.bio}</p>
       </div>
       }
-      <Button variant={"outline"} className="cursor-pointer bg-gray-950/50 backdrop-blur-lg">
-        Contact
-      </Button>
+      { profileInfo.isPortfolioEnabled &&
+        <Link to={`/${profileInfo.username}/portfolio`}>
+          <Button variant={"outline"} className="cursor-pointer w-full bg-gray-950/50 backdrop-blur-lg">
+            Go to Card <Badge variant="outline">Experimental</Badge><ArrowRight className="w-4 h-4 ml-2"/>
+          </Button>
+        </Link>
+      }
     </div>
   </div>
 }
@@ -112,6 +116,7 @@ const Profile = () => {
   const [errorCode, setErrorCode] = useState(0)
   const [errorText, setErrorText] = useState("")
   const params = useParams();
+
   useEffect(() => {
     const fetchData = async () => {
       GetUserSession().then((data) => {

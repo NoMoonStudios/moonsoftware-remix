@@ -1,7 +1,9 @@
-import { ChevronDown, ChevronUp, Plus, Trash, TriangleAlert } from "lucide-react";
+import { ChevronDown, ChevronUp, Image, Plus, Trash, TriangleAlert } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -15,10 +17,11 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import LinkRenderer, { IconRenderer } from "~/components/ui/link-renderer";
 import { Separator } from "~/components/ui/separator";
+import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import LinkData from "~/lib/Modules/LinkData";
-import { PortfolioLink } from "~/models/Portfolio";
+import { PortfolioInfo, PortfolioLink } from "~/models/Portfolio";
 import { UserInfo } from "~/types/init";
 
 type LinkItem = {
@@ -240,12 +243,158 @@ const LinkForm = ({ formState, setFormState, isLoading }: LinkFormProps) => {
   );
 };
 
+
+const AvatarBannerSelector = ({
+  portfolioInfo, 
+  loading,
+  setLoading, 
+  onUpdate, 
+  setBannerFile, 
+  setAvatarFile
+}: {
+  portfolioInfo: PortfolioInfo, 
+  loading: boolean,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>, 
+  onUpdate: () => void, 
+  setBannerFile: React.Dispatch<React.SetStateAction<File | null>>, 
+  setAvatarFile: React.Dispatch<React.SetStateAction<File | null>>
+}) => {
+  const [avatarPreview, setAvatarPreview] = useState<string>(portfolioInfo.avatar);
+  const [bannerPreview, setBannerPreview] = useState<string>(portfolioInfo.banner);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setAvatarPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBannerFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setBannerPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const deleteBanner = async () => {
+    setLoading(true);
+    const response = await fetch("/api/v1/portfolio/removeBanner", {
+      method: "POST",
+    });
+    if (!response.ok) throw new Error("Failed to delete banner");
+    setBannerFile(null);
+    setBannerPreview('');
+    onUpdate();
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    setAvatarPreview(portfolioInfo.avatar);
+    setBannerPreview(portfolioInfo.banner);
+  }, [portfolioInfo]);
+
+  if (loading && !avatarPreview) return  <div className="flex flex-row gap-4">
+    <Skeleton className=" rounded-full w-32 h-32" />
+    <Skeleton className="rounded w-64 h-32" />
+  </div>
+  return <div className="flex flex-row gap-4">
+    {/* AVATAR */}
+    <div className="relative bg-black rounded-full w-32 h-32 overflow-hidden">
+      { avatarPreview && <img
+        src={avatarPreview}
+        alt="Avatar preview"
+        className="w-full h-full rounded-full object-cover"
+      />}
+      <motion.label 
+        htmlFor="avatar" 
+        className="absolute top-0 left-0 w-full h-full rounded-full flex justify-center items-center bg-black cursor-pointer opacity-0"
+        whileHover={{ opacity: .5 }}
+      >
+        <Image className="w-8 h-8"/>
+      </motion.label>
+    </div>
+
+
+    {/* BANNER */}
+    <div className="relative bg-black rounded w-64 h-32">
+      {bannerPreview &&
+        <img
+          src={bannerPreview}
+          alt="Banner preview"
+          className="w-full h-full rounded object-cover"
+        />
+      }
+      <motion.label 
+        htmlFor="banner" 
+        className="absolute top-0 left-0 w-full h-full rounded flex justify-center items-center opacity-0 bg-black cursor-pointer"
+        whileHover={{ opacity: .5 }}
+      >
+        <Image className="w-8 h-8"/>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            {bannerPreview && <Button variant={'secondary'} className="absolute z-10 top-2 right-2 w-8 h-8 rounded flex justify-center items-center cursor-pointer">
+            <Trash className="w-8 h-8"/>
+            </Button>}
+          </AlertDialogTrigger>
+          <AlertDialogPortal >
+            <AlertDialogOverlay />
+            <AlertDialogContent>
+              <AlertDialogTitle>
+                Are you sure?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This action will take effect immediately
+              </AlertDialogDescription>
+              <div className="flex flex-row gap-2 justify-end">
+                
+              <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+              <AlertDialogAction className="cursor-pointer" onClick={deleteBanner}>Remove Banner</AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialogPortal>
+        </AlertDialog>
+      </motion.label>
+    </div>
+
+
+
+
+    {/* file inputs */}
+    <input
+      type="file"
+      id="avatar"
+      accept="image/*"
+      onChange={handleAvatarChange}
+      className="hidden"
+      disabled={loading}
+    />
+    <input
+      type="file"
+      id="banner"
+      accept="image/*"
+      onChange={handleBannerChange}
+      className="hidden"
+      disabled={loading}
+    />
+  </div>
+} 
+
 interface PortfolioProps {
   userInfo: UserInfo;
+  onUpdate: () => void;
 }
 
-const Portfolio = ({ userInfo }: PortfolioProps) => {
+const Portfolio = ({ userInfo, onUpdate = () => {}  }: PortfolioProps) => {
   const [isLoading, setIsLoading] = useState(false);
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
 
   const [formState, setFormState] = useState({
     displayName: userInfo.displayName,
@@ -261,6 +410,12 @@ const Portfolio = ({ userInfo }: PortfolioProps) => {
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(formState));
+      if (avatarFile) {
+        formData.append("avatar", avatarFile);
+      }
+      if (bannerFile) {
+        formData.append("banner", bannerFile);
+      }
 
       const response = await fetch("/api/v1/portfolio/update", {
         method: "POST",
@@ -309,6 +464,14 @@ const Portfolio = ({ userInfo }: PortfolioProps) => {
       </div>
       <div className="grid grid-cols-2 gap-6 mt-4">
         <div className="flex flex-col gap-6">
+          <AvatarBannerSelector 
+            portfolioInfo={formState as PortfolioInfo} 
+            setLoading={setIsLoading} 
+            loading={isLoading}
+            onUpdate={onUpdate} 
+            setAvatarFile={setAvatarFile}
+            setBannerFile={setBannerFile}
+          />
           <div className="flex flex-col gap-2">
             <Label className="font-medium">Display Name</Label>
             <Input

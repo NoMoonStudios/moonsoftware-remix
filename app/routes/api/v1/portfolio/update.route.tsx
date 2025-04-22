@@ -5,8 +5,10 @@ import { unstable_parseMultipartFormData } from "@remix-run/node";
 import Portfolio, { PortfolioInfo } from "~/models/Portfolio";
 import RateLimiter from '~/lib/RateLimiter';
 import { DeleteFile, UploadFile } from "~/lib/Utilities/ServerFunctions/Files";
-import { GetUserProfileData, ClearUserCache } from "~/lib/Utilities/server";
+import { GetUserProfileData,  ClearUserCache, GetUserPortfolio } from "~/lib/Utilities/server";
 import LinkData from "~/lib/Modules/LinkData";
+import { UserInfo } from "~/types/init";
+import User from "~/models/User";
 
 // Platform configuration and helpers
 
@@ -65,33 +67,42 @@ async function checkRateLimit(request: Request) {
 
 // Process file uploads and cleanup
 async function processFiles(
-  existing: typeof Portfolio,
+  form: {
+    [key: string]: unknown;
+  },
+  existing: PortfolioInfo | null,
   files: Record<string, string | null>
 ) {
+  const newData: { [key: string]: string | null } = {}
   for (const [field, value] of Object.entries(files)) {
-    if (value) {
-      if (existing?.[field as keyof typeof existing]) {
-        await DeleteFile(existing[field as keyof typeof existing] as string);
-      }
+    if (!value) continue
+    if (existing?.[field as keyof PortfolioInfo]) {
+      await DeleteFile(existing[field as keyof PortfolioInfo] as string);
     }
+    newData[field] = value;
+  }
+  
+  return {
+    ...form,
+    ...newData
   }
 }
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function savePortfolioData(userId: string, data: any) {
-  await Portfolio.updateOne(
-    { userid: userId },
-    { 
-      $set: {
-        ...data,
-        updated: new Date(),
-        userid: userId
-      }
-    },
-    { upsert: true }
-  );
-  await ClearUserCache(userId);
+async function savePortfolioData(user: UserInfo, data: any) {
+  await Promise.all([
+    Portfolio.updateOne(
+      { userid: user.userid },
+      { ...data, updated: new Date() }
+    ),
+    User.updateOne(
+      { userid: user.userid },
+      { isPortfolioEnabled: data.enabled }
+    )
+  ]);
+  
+  await ClearUserCache(user.userid);
 }
 
 // Main action handler
@@ -99,49 +110,39 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!(await checkRateLimit(request))) {
     return new Response("Too many requests", { status: 429 });
   }
-
   if (request.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
-
   const user = await GetUserProfileData(request);
-  if (!user) return new Response("Unauthorized", { status: 401 });
-
-  try {
-    const formData = await unstable_parseMultipartFormData(
-      request,
-      async ({ name, data, filename }) => {
-        if (name === "avatar" || name === "banner") {
-          return filename ? UploadFile(data) : null;
-        }
-        if (filename) return null
-        
-        const chunks = [];
-        for await (const chunk of data) chunks.push(chunk);
-        return Buffer.concat(chunks).toString('utf-8');
-      }
-    );
-
-    const jsonData = formData.get("data")?.toString() || "{}";
-    const parsedData = PortfolioSchema.parse(JSON.parse(jsonData));
-    await processFiles(user.userid, {
-      avatar: formData.get("avatar") as string,
-      banner: formData.get("banner") as string
-    });
-
-    await savePortfolioData(user.userid, parsedData);
-
-    return new Response("Success", { status: 200 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify(error.errors), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    console.error("Update failed:", error);
-    return new Response("Invalid request", { status: 400 });
+  const portfolio = await GetUserPortfolio(user);
+  if (!user) {
+    return new Response("Unauthorized", { status: 401 });
   }
+  const formData = await unstable_parseMultipartFormData(
+    request,
+    async ({ name, data, filename }) => {
+      if (name === "avatar" || name === "banner") {
+        if (filename) return await UploadFile(data)
+        else {
+          const chunks = [];  for await (const chunk of data) chunks.push(chunk);
+          return Buffer.concat(chunks).toString('utf-8');
+        }
+      }
+      if (filename) return null
+      
+      const chunks = [];
+      for await (const chunk of data) chunks.push(chunk);
+      return Buffer.concat(chunks).toString('utf-8');
+    }
+  );
+  const jsonData = formData.get("data")?.toString() || "{}";
+  const parsedData = PortfolioSchema.parse(JSON.parse(jsonData));
+  const finalData = await processFiles(parsedData, portfolio, {
+    avatar: formData.get("avatar") as string,
+    banner: formData.get("banner") as string
+  });
+  await savePortfolioData(user, finalData);
+  return new Response("Success", { status: 200 });
 }
 
 // Loader for GET requests

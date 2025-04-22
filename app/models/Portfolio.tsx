@@ -28,7 +28,7 @@ export interface PortfolioInfo extends Document {
 
 const schema : Schema = new mongoose.Schema({
     layout: String,
-    userid: String,
+    userid: { type: String, required: true, unique: true, index: true },
     updated: Date,
     enabled: Boolean,
     about: String,
@@ -38,5 +38,8 @@ const schema : Schema = new mongoose.Schema({
     avatar: String,
     links: Array<PortfolioLink>,
 })
+
+schema.index({ userid: 1 });
+schema.index({ _id: 1, userid: 1 });
 
 export default mongoose.models.Portfolio || mongoose.model("Portfolio", schema);

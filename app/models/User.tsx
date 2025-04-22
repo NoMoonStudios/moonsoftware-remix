@@ -20,15 +20,17 @@ export interface IUser extends Document {
     isVerified : boolean;
     isEmailVerified: boolean;
 
-    roblox_userid : number;
+    robloxUserid : number;
     badges: Array<number>;
     customBadge: {
         name: string;
         color: string;
-    }
+    },
+    portfolioid: mongoose.Types.ObjectId;
 
     bio:string;
     joinedOn: Date;
+    createdAt: Date;
 
     rank: string;
     session: string;
@@ -40,9 +42,10 @@ export interface IUser extends Document {
         userid: string;
         username: string;
         avatar:string;
-        refresh_token: string;
-        connections: Array<{}>;
+        refreshToken: string;
+        connections: Array<object>;
     };
+    settings: Settings;
 
     roblox : {
         verified: boolean;
@@ -51,6 +54,8 @@ export interface IUser extends Document {
     };
 
     sessions: Array<string>;
+
+    isPortfolioEnabled: boolean; // Added in middleware
 }
 
 const schema : Schema = new mongoose.Schema({
@@ -58,7 +63,7 @@ const schema : Schema = new mongoose.Schema({
     username : String,
     pronouns : String,
 
-    userid : String,
+    userid: { type: String, required: true, unique: true, index: true },
     email : String,
     passwordHash : String,
 
@@ -68,8 +73,9 @@ const schema : Schema = new mongoose.Schema({
     isEmailVerified: Boolean,
     isVerified : Boolean,
 
-    roblox_userid : Number,
+    robloxUserid : Number,
     badges: Array<number>,
+    isPortfolioEnabled: { type: Boolean, default: false },
     customBadge: {
         name: String,
         color: String,
@@ -77,7 +83,8 @@ const schema : Schema = new mongoose.Schema({
 
     bio:String,
     joinedOn: Date,
-
+    portfolioid: { type: mongoose.Schema.Types.ObjectId },
+    
     rank: String,
     isTermed: Boolean,
 
@@ -86,8 +93,12 @@ const schema : Schema = new mongoose.Schema({
         userid: String,
         username: String,
         avatar:String,
-        refresh_token: String,
+        refreshToken: String,
         connections: Array<object>,
+    },
+    settings: {
+        emailVisible: Boolean,
+        connectionVisible: Boolean
     },
 
     roblox : {
@@ -99,5 +110,6 @@ const schema : Schema = new mongoose.Schema({
     sessions: Array,
     createdAt : Date
 })
-
+schema.index({ portfolioid: 1 }); 
+schema.index({ userid: 1, portfolioid: 1 }); 
 export default mongoose.models.User || mongoose.model<IUser>("User", schema);

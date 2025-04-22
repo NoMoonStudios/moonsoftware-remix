@@ -1,5 +1,4 @@
 import badges, { BadgeInfo } from "~/lib/Modules/Badges";
-import { UserInfo } from "~/types/init"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 const BadgeWrapper = ({badge}: {badge: BadgeInfo}) => {
@@ -29,7 +28,7 @@ const BadgeWrapper = ({badge}: {badge: BadgeInfo}) => {
     </Tooltip>
   )
 }
-const ProfileBadges = ({profileInfo, className}: {profileInfo: UserInfo, className?: string}) => {
+const ProfileBadges = ({profileInfo, className}: {profileInfo: {isVerified: boolean, badges: number[]}, className?: string}) => {
   return (
     (profileInfo.isVerified || profileInfo.badges.length > 0) &&
     <div className={"flex flex-row " + className}>
