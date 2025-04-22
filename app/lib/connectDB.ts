@@ -20,7 +20,7 @@ async function dbConnect() {
 }
 
 mongoose.connection.on('connected', () => {
-    createIndexes().catch(console.error);
+    // createIndexes().catch(console.error);
   });
 
 export default dbConnect
