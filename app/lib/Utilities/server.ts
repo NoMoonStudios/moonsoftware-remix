@@ -7,8 +7,11 @@ import { Authentication } from './server';
 import User from "~/models/User";
 import Portfolio, { PortfolioInfo } from "~/models/Portfolio";
 
-await dbConnect();
-const client = await redisDB();
+let client: Awaited<ReturnType<typeof redisDB>>;
+(async () => {
+    await dbConnect();
+    client = await redisDB();
+})();
 
 export async function GetUserPortfolio(user: UserInfo): Promise<PortfolioInfo | null> {
     const userId = user.userid;
