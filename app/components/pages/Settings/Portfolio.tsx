@@ -132,15 +132,21 @@ const LinkForm = ({ formState, setFormState, isLoading }: LinkFormProps) => {
   });
   const [linkUrlSuffix, setLinkUrlSuffix] = useState("");
   const addLink = () => {
+    
     if (isLoading) return;
-
-    if (!newLink.text || !newLink.url) return;
-
+    if (!newLink.text || !linkUrlSuffix) return;
     const baseUrl = (LinkData[newLink.platform as Platform] as LinkItem).url;
     const finalUrl =
       newLink.platform === "custom"
         ? linkUrlSuffix
         : `${baseUrl}${linkUrlSuffix}`;
+        
+    try {
+      new URL(finalUrl);
+    } catch (_) {
+      toast.error("Invalid URL");
+      return;
+    }
 
     setFormState((prev) => ({
       ...prev,

@@ -71,18 +71,18 @@ function PortfolioCard({ data }: { data: PortfolioInfo }) {
           //Concept showcase will be replaced soon with actual shit
           data.userid == '96127444' &&
           <div className="w-full justify-stretch grid grid-cols-3 h-25 gap-2 select-none">
-            <CardItem translateZ={50} rotateY={-10} className="bg-pink-700/20 w-full rounded flex justify-center flex-col items-center" >
+            <CardItem translateZ={50} rotateY={-20} className="bg-pink-800/30 w-full rounded flex justify-center flex-col items-center" >
               <div className="font-mono text-4xl flex flex-row items-center gap-2 text-pink-600"> 
                 <Bug size={55}/>
                 <span className="font-extrabold">
                   Zero
                 </span>
               </div>
-              <div className="font-mono text-2xl flex flex-row items-center gap-2 text-fuchsia-600">
+              <div className="font-mono text-2xl flex flex-row items-center gap-2 text-fuchsia-400">
                 Critical Bugs
               </div>
             </CardItem>
-            <CardItem translateZ={70} className="bg-emerald-700/20 w-full rounded flex justify-center flex-col items-center" >
+            <CardItem translateZ={100} className="bg-emerald-700/20 w-full rounded flex justify-center flex-col items-center" >
               <div className="font-mono text-2xl flex flex-row items-center gap-2 text-emerald-400"> 
                 <Sparkles size={55}/>
                 <span className="w-min font-extrabold">
@@ -93,7 +93,7 @@ function PortfolioCard({ data }: { data: PortfolioInfo }) {
                 Clean and Pretty
               </div>
             </CardItem>
-            <CardItem translateZ={50} rotateY={10} className="bg-blue-700/20 w-full rounded flex justify-center flex-col items-center" >
+            <CardItem translateZ={50} rotateY={20} className="bg-blue-700/20 w-full rounded flex justify-center flex-col items-center" >
               <div className="font-mono text-4xl flex flex-row items-center gap-2 text-blue-400 "> 
                 <Cat size={55}/>
                 <span className="w-min font-extrabold">
