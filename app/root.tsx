@@ -13,6 +13,8 @@ import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
 
+// hi
+
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
