@@ -31,6 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return null
         }
         if (filename) return null
+        if (!data) return null
         
         const chunks = [];
         for await (const chunk of data) chunks.push(chunk);
