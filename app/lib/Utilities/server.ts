@@ -100,7 +100,7 @@ export async function GetUserPrivateData(request: Request) {
     if (userCache && portfolioCache) {
       return {
         ...JSON.parse(userCache),
-        isPortfolioEnabled: JSON.parse(portfolioCache).enabled
+        isPortfolioEnabled: JSON.parse(portfolioCache)?.enabled || false
       };
     }
   
