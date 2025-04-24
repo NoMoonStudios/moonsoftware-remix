@@ -98,6 +98,11 @@ const badges: {[key: number]: BadgeInfo} = {
     badge: <img src="/badges/DNL.png" alt="DN" />,
     description: "Verified DEVNET Staff"
   },
+  13: {
+    name: "DevCentral Staff",
+    badge: <img src="/badges/dc.png" alt="DC" />,
+    description: "Verified DevCentral Staff"
+  },
 }
 
 export default badges
