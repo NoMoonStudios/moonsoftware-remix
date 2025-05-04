@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import RateLimiter from '~/lib/RateLimiter';
 import * as ServerFunctions from "~/lib/Utilities/server";
 
-import Ranks, {IRanks} from "~/models/Ranks";
+import Ranks from "~/models/Ranks";
 import User from "~/models/User";
 
 import ErrorCodes from "~/lib/json/errorCodes.json";

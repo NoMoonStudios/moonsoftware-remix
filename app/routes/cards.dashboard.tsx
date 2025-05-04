@@ -1,7 +1,8 @@
 
-import { Layers, Link2, Palette, Table2, UserCog } from "lucide-react";
+import { Layers, Link2, Palette, Table, Table2, UserCog } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import Overview from "~/components/pages/CardsEdit/Overview/Overview";
+import Overview from "~/components/pages/CardsEdit/Overview";
+import Tabs from "~/components/pages/CardsEdit/Tabs";
 import Navigation from "~/components/pages/Navigation"
 import MovingParticles from "~/components/particles/matrix";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/accordion";
@@ -38,9 +39,14 @@ function PortfolioPage() {
       icon: <Palette />,
       content: <Temp/>
     },
+    Tabs: {
+      title: "Tabs",
+      icon: <Layers />,
+      content: <Tabs/>
+    },
     Templates: {
       title: "Templates",
-      icon: <Layers />,
+      icon: <Table />,
       content: <Temp/>
     }
   } : {}
@@ -59,19 +65,17 @@ function PortfolioPage() {
   useEffect(() => {
     LoadUser()
   }, [])
-  
-  
-
 
   return (
     <div className="flex flex-col h-full w-full bg-linear-to-tr from-transparent via-transparent to-blue-950/30">
       <MovingParticles/>
       <Navigation userInfo={userInfo}/>
+      
       <div className="grid grid-cols-[250px_1fr] grow">
         <div className="w-full h-full bg-linear-to-b  from-gray-900/40 to-gray-900/10 backdrop-blur-lg rounded-tr-3xl p-4 border-1 border-l-0 border-b-0">
           <div className="flex flex-row gap-2 p-4 items-center text-2xl font-bold">
             <img src="/moon_icon.png" draggable={false} className="mt-auto mb-auto w-[30px] h-[30px]" loading="lazy" alt="icon" />
-            Moon Cards
+            Vivre Cards
           </div>
 
           <Accordion type="single" collapsible>
@@ -81,6 +85,7 @@ function PortfolioPage() {
                   <UserCog /> Account
                 </div>
               </AccordionTrigger>
+              
               {Object.keys(accordionViews).map(
                 (item) => <AccordionContent 
                   key={item} 
