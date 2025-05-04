@@ -110,6 +110,5 @@ const schema : Schema = new mongoose.Schema({
     sessions: Array,
     createdAt : Date
 })
-schema.index({ portfolioid: 1 }); 
-schema.index({ userid: 1, portfolioid: 1 }); 
+
 export default mongoose.models.User || mongoose.model<IUser>("User", schema);

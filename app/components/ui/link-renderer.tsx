@@ -1,16 +1,16 @@
 import { ComponentType, createElement } from "react";
 import LinkData from "~/lib/Modules/LinkData";
-import { PortfolioLink } from "~/models/Portfolio";
+import { CardsLink } from "~/models/Cards";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 interface LinkRendererProps {
-  link: PortfolioLink;
+  link: CardsLink;
   className?: string;
   tooltip?: true
 }
 
 interface IconRendererProps {
-  platform: string | PortfolioLink;
+  platform: string | CardsLink;
   className?: string;
   tooltip?: true
 }

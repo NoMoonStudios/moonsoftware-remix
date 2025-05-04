@@ -36,6 +36,7 @@ export default function Navigation({ userInfo = undefined }: { userInfo: UserInf
                     <a href="/" className="hover:text-gray-300">Home</a>
                     <a href="/about" className="hover:text-gray-300">About</a>
                     <a href="/projects" className="hover:text-gray-300">Projects</a>
+                    <a href="/cards" className="hover:text-gray-300">Cards</a>
                     <a href="/contact" className="hover:text-gray-300">Contact</a>
                 </div>
 

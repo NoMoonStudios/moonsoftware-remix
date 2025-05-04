@@ -5,7 +5,7 @@ import dbConnect from "../connectDB";
 import redisDB from "../redisDB";
 import { Authentication } from './server';
 import User from "~/models/User";
-import Portfolio, { PortfolioInfo } from "~/models/Portfolio";
+import Card, { CardsInfo } from "~/models/Cards";
 
 let client: Awaited<ReturnType<typeof redisDB>>;
 (async () => {
@@ -13,38 +13,40 @@ let client: Awaited<ReturnType<typeof redisDB>>;
     client = await redisDB();
 })();
 
-export async function GetUserPortfolio(user: UserInfo): Promise<PortfolioInfo | null> {
+export async function GetUserCards(user: UserInfo): Promise<CardInfo | null> {
     const userId = user.userid;
     
-    const cached = await client.get(`portfolio:${userId}`);
-    if (cached) return JSON.parse(cached);
-  
-    const portfolio = await Portfolio.findOne({
+    if (client) {
+      const cached = await client.get(`cards:${userId}`);
+      if (cached) return JSON.parse(cached);
+    }
+    
+    const Cards = await Card.findOne({
       $or: [
         { _id: user.portfolioid, userid: userId }, // Uses compound index
         { userid: userId } 
       ]
     }).lean();
   
-    if (portfolio) {
-      await client.set(`portfolio:${userId}`, JSON.stringify(portfolio), { EX: 60 });
+    if (Cards) {
+      if (client) await client.set(`cards:${userId}`, JSON.stringify(Cards), { EX: 60 });
     }
     
-    return portfolio;
+    return Cards;
   }
 
 async function getAdditionalUserData(user: UserInfo) {
-    const portfolio = await GetUserPortfolio(user);
+    const Cards = await GetUserCards(user);
     
-    return { ...user, isPortfolioEnabled: (portfolio?.enabled || false) };
+    return { ...user, isPortfolioEnabled: (Cards?.enabled || false) };
 }
 export async function GetUserByUsername(username: string){
     let userInfoCache: UserInfo | undefined  = undefined
     try {
-    const cache = await client.get(`userprofile:${username}`)
-    if (cache) {
-        userInfoCache = JSON.parse(cache)
-    }
+      const cache = await client.get(`userprofile:${username}`)
+      if (cache) {
+          userInfoCache = JSON.parse(cache)
+      }
     } catch (er) { 
         // Can't connect to redis.
     }
@@ -63,6 +65,7 @@ export async function GetUserByUsername(username: string){
 
 export async function GetUserProfileByUsername(username: string) {
     const userData = await GetUserByUsername(username)
+    if (!userData) return
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {sessions, email, discord, isEmailVerified, ...publicUserData} = userData;
     return publicUserData
@@ -72,9 +75,14 @@ export async function GetUserId(request: Request) {
     const cookies = request.headers.get("Cookie");
     
     if (!cookies) return
-    const refreshToken = await Authentication.refreshTokenCookie.parse(cookies);
-    const userInfo = await Authentication.decodeRefreshToken(refreshToken);
-    return userInfo.id.toString();
+    
+    try {
+      const refreshToken = await Authentication.refreshTokenCookie.parse(cookies);
+      const userInfo = await Authentication.decodeRefreshToken(refreshToken);
+      return userInfo.id.toString();
+    } catch (error) {
+      return
+    }
 }
 
 async function GetUserSchemaWithUserId(userid: string): Promise<UserInfo | null> {
@@ -93,8 +101,8 @@ export async function GetUserPrivateData(request: Request) {
     if (!userid) return null;
   
     const [userCache, portfolioCache] = await Promise.all([
-      client.get(`private_userdata:${userid}`),
-      client.get(`portfolio:${userid}`)
+      client ? client.get(`private_userdata:${userid}`) : null,
+      client ? client.get(`cards:${userid}`) : null
     ]);
   
     if (userCache && portfolioCache) {
@@ -104,27 +112,26 @@ export async function GetUserPrivateData(request: Request) {
       };
     }
   
-    const [user, portfolio] = await Promise.all([
+    const [user, Cards] = await Promise.all([
       User.findOne({ userid }).lean(),
-      GetUserPortfolio({ userid } as UserInfo)
+      GetUserCards({ userid } as UserInfo)
     ]);
   
     if (!user) return null;
-  
-    await Promise.all([
+    if (client) await Promise.all([
       client.set(`private_userdata:${userid}`, JSON.stringify(user), { EX: 60 }),
-      client.set(`portfolio:${userid}`, JSON.stringify(portfolio), { EX: 60 })
+      client.set(`cards:${userid}`, JSON.stringify(Cards), { EX: 60 })
     ]);
   
     return {
       ...user,
-      isPortfolioEnabled: portfolio?.enabled || false
+      isPortfolioEnabled: Cards?.enabled || false
     };
   }
 
 export async function ClearUserCache(userid: string) {
     ClearProfileCache(userid);
-    ClearPortfolioCache(userid);
+    ClearCardsCache(userid);
 }
 
 export async function ClearProfileCache(userid: string) {
@@ -137,9 +144,9 @@ export async function ClearProfileCache(userid: string) {
     }
 }
 
-export async function ClearPortfolioCache(userid: string) {
+export async function ClearCardsCache(userid: string) {
     if (client) {
-        await client.del(`portfolio:${userid}`); 
+        await client.del(`cards:${userid}`); 
     }
 }
 
@@ -147,7 +154,7 @@ export async function GetUserData(request: Request) {
     const data = await GetUserPrivateData(request);
     if (!data) return
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {passwordHash, __v, _id, sessions, ...userData} = data
+    const { passwordHash, __v, _id, sessions, ...userData } = data
     
     return userData
 }
@@ -158,4 +165,8 @@ export async function GetUserProfileData(request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {sessions, email, discord, isEmailVerified, ...publicUserData} = data
     return publicUserData
+}
+
+export function GetUserInfoServer(userSchema: any) {
+    throw new Error("Function not implemented.");
 }

@@ -1,11 +1,11 @@
-// ~/app/routes/portfolio.ts
+// ~/app/routes/cards.ts
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { unstable_parseMultipartFormData } from "@remix-run/node";
-import Portfolio, { PortfolioInfo } from "~/models/Portfolio";
+import Cards, { CardsInfo } from "~/models/Cards";
 import RateLimiter from '~/lib/RateLimiter';
 import { DeleteFile, UploadFile } from "~/lib/Utilities/ServerFunctions/Files";
-import { GetUserProfileData,  ClearUserCache, GetUserPortfolio } from "~/lib/Utilities/server";
+import { GetUserProfileData,  ClearUserCache, GetUserCards } from "~/lib/Utilities/server";
 import LinkData from "~/lib/Modules/LinkData";
 import { UserInfo } from "~/types/init";
 import User from "~/models/User";
@@ -70,14 +70,14 @@ async function processFiles(
   form: {
     [key: string]: unknown;
   },
-  existing: PortfolioInfo | null,
+  existing: CardsInfo | null,
   files: Record<string, string | null>
 ) {
   const newData: { [key: string]: string | null } = {}
   for (const [field, value] of Object.entries(files)) {
     if (!value) continue
-    if (existing?.[field as keyof PortfolioInfo]) {
-      await DeleteFile(existing[field as keyof PortfolioInfo] as string);
+    if (existing?.[field as keyof CardsInfo]) {
+      await DeleteFile(existing[field as keyof CardsInfo] as string);
     }
     newData[field] = value;
   }
@@ -92,7 +92,7 @@ async function processFiles(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function savePortfolioData(user: UserInfo, data: any) {
   await Promise.all([
-    Portfolio.updateOne(
+    Cards.updateOne(
       { userid: user.userid },
       { ...data, updated: new Date() }
     ),
@@ -114,7 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response("Method not allowed", { status: 405 });
   }
   const user = await GetUserProfileData(request);
-  const portfolio = await GetUserPortfolio(user);
+  const cards = await GetUserCards(user);
   if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
@@ -137,7 +137,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
   const jsonData = formData.get("data")?.toString() || "{}";
   const parsedData = PortfolioSchema.parse(JSON.parse(jsonData));
-  const finalData = await processFiles(parsedData, portfolio, {
+  const finalData = await processFiles(parsedData, cards, {
     avatar: formData.get("avatar") as string,
     banner: formData.get("banner") as string
   });

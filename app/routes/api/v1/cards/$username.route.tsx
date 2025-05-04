@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import RateLimiter from '~/lib/RateLimiter';
 import ErrorCodes from "~/lib/json/errorCodes.json";
-import Portfolio from "~/models/Portfolio";
+import Cards from "~/models/Cards";
 import dbConnect from "~/lib/connectDB";
 import { GetUserId, GetUserProfileByUsername } from "~/lib/Utilities/server";
 
@@ -16,23 +16,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!userInfoCache) return new Response("User not found", { status: 404 });
   const userId = await GetUserId(request);
   await dbConnect();
-  const schema = await Portfolio.findOne({ userid: userInfoCache.userid });
-  if (!schema || (!schema.enabled && userId != userInfoCache.userid)) return new Response("Portfolio not found", { status: 404 });
+  const schema = await Cards.findOne({ userid: userInfoCache.userid });
+  if (!schema || (!schema.enabled && userId != userInfoCache.userid)) return new Response("Cards not found", { status: 404 });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {__v, _id,...existingPortfolio} = schema.toObject();
+  const {__v, _id,...existingCards} = schema.toObject();
   
 
-  if (existingPortfolio) {
+  if (existingCards) {
     return Response.json({
-      ...existingPortfolio, 
+      ...existingCards, 
       isVerified: userInfoCache.isVerified, 
       username: userInfoCache.username,
       badges: userInfoCache.badges,
       createdAt: userInfoCache.createdAt,
-      ...(existingPortfolio.displayName == '' ? { displayName: userInfoCache.displayName } : {displayName: existingPortfolio.displayName}),
-      ...(existingPortfolio.avatar ? { avatar: existingPortfolio.avatar } : {avatar: userInfoCache.avatar}),
+      ...(existingCards.displayName == '' ? { displayName: userInfoCache.displayName } : {displayName: existingCards.displayName}),
+      ...(existingCards.avatar ? { avatar: existingCards.avatar } : {avatar: userInfoCache.avatar}),
     });
   } else {
-    return new Response("Portfolio not found", { status: 404 });
+    return new Response("Cards not found", { status: 404 });
   }
 }

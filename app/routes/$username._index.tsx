@@ -52,7 +52,7 @@ const ProfileOverview = ({profileInfo}: {profileInfo: UserInfo}) => {
       </div>
       }
       { profileInfo.isPortfolioEnabled &&
-        <Link to={`/${profileInfo.username}/portfolio`}>
+        <Link to={`/cards/${profileInfo.username}`}>
           <Button variant={"outline"} className="cursor-pointer w-full bg-gray-950/50 backdrop-blur-lg">
             Go to Card <Badge variant="outline">Experimental</Badge><ArrowRight className="w-4 h-4 ml-2"/>
           </Button>

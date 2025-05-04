@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Navigation from "~/components/pages/Navigation";
 import { Skeleton } from "~/components/ui/skeleton";
 import { GetUserSession } from "~/lib/Utilities/client";
-import { PortfolioInfo } from "~/models/Portfolio";
+import { CardsInfo } from "~/models/Cards";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { AlertCircle, Bug, Cat, Clock, Heart, Sparkles } from "lucide-react";
 import { format } from "date-fns";
@@ -18,7 +18,7 @@ import LinkRenderer from "~/components/ui/link-renderer";
 import ProfileBadges from "~/components/ui/profile-badges";
 import { CardBody, CardContainer, CardItem } from "~/components/ui/3d-card";
 
-function PortfolioCard({ data }: { data: PortfolioInfo }) {
+function PortfolioCard({ data }: { data: CardsInfo }) {
   const {
     username,
     about,
@@ -166,8 +166,8 @@ const SkeletonProfile = () => {
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>();
-  const [portfolioInfo, SetPorfolioInfo] = useState<
-    PortfolioInfo | undefined
+  const [CardsInfo, SetPorfolioInfo] = useState<
+    CardsInfo | undefined
   >();
   const [notFound, setNotFound] = useState(false);
   const params = useParams();
@@ -178,7 +178,7 @@ const Profile = () => {
         setUserInfo(data);
       });
       try {
-        const response = await fetch(`/api/v1/portfolio/${params.username}`);
+        const response = await fetch(`/api/v1/cards/${params.username}`);
 
         if (response.status === 404) {
           setNotFound(true);
@@ -214,7 +214,7 @@ const Profile = () => {
   return (
     <div className="h-screen overflow-x-hidden flex flex-col">
       <Navigation userInfo={userInfo} />
-      {portfolioInfo ? (
+      {CardsInfo ? (
         <>
           <p className="absolute font-mono text-lg bottom-20 left-5 text-white/50">
             EXPERIMENTAL
@@ -223,7 +223,7 @@ const Profile = () => {
             Early Work in Progress{" "}
             <span className="text-xs text-white/30">Subject to Change</span>
           </p>
-          {!portfolioInfo.enabled && (
+          {!CardsInfo.enabled && (
             <Tooltip>
               <TooltipContent>
                 Your Card is disabled in settings, you can enable it there
@@ -235,17 +235,17 @@ const Profile = () => {
               </TooltipTrigger>
             </Tooltip>
           )}
-          {portfolioInfo.banner && (
+          {CardsInfo.banner && (
             <>
               <img
                 className="w-full h-full object-cover absolute z-[-1] top-0 left-0"
-                src={portfolioInfo.banner}
+                src={CardsInfo.banner}
                 alt=""
               />
               <div className="w-full h-full bg-gradient-to-t via-transparent from-black absolute z-[-1] top-0 left-0"></div>
             </>
           )}
-          <PortfolioCard data={portfolioInfo} />
+          <PortfolioCard data={CardsInfo} />
         </>
       ) : (
         <SkeletonProfile />

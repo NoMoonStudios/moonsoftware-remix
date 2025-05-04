@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface PortfolioLink  {
+export interface CardsLink  {
     platform: string,
     text: string,
     url: string,
@@ -8,7 +8,7 @@ export interface PortfolioLink  {
     iconUrl?: string
   }
 
-export interface PortfolioInfo extends Document {
+export interface CardsInfo extends Document {
     layout: string,
     userid: string,
     enabled: boolean,
@@ -16,7 +16,7 @@ export interface PortfolioInfo extends Document {
     about: string,
     banner: string,
     avatar: string,
-    links: Array<PortfolioLink>,
+    links: Array<CardsLink>,
     displayName: string,
     showTimestamps: boolean,
     // these below are added dynamically in the request
@@ -36,10 +36,9 @@ const schema : Schema = new mongoose.Schema({
     showTimestamps: Boolean,
     banner: String,
     avatar: String,
-    links: Array<PortfolioLink>,
+    links: Array<CardsLink>,
 })
 
-schema.index({ userid: 1 });
-schema.index({ _id: 1, userid: 1 });
 
-export default mongoose.models.Portfolio || mongoose.model("Portfolio", schema);
+
+export default mongoose.models.Cards || mongoose.model("Cards", schema);
