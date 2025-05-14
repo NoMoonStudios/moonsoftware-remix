@@ -24,17 +24,17 @@ export default function Navigation({ userInfo = undefined }: { userInfo: UserInf
     const [menuVisible, setMenuVisible] = useState(false)
     return (
         <div className="top-0 w-full z-50 flex flex-row bg-gradient-to-b from-black to-transparent backdrop-blur-lg items-center justify-center">
-            <header className="flex flex-row p-5 gap-7 w-[70vw] h-[75px]">
+            <header className="flex flex-row p-5 gap-7 w-[80vw] h-[105px]">
                 {/* Logo Area */}
                 <Link to="/" className="flex flex-row gap-1 h-auto select-none">
-                    <img src="/moon_icon.png" draggable={false} className="mt-auto mb-auto w-[30px] h-[30px]" loading="lazy" alt="icon" />
-                    <h1 className="uppercase font-black mb-auto mt-auto">Moonsoftware</h1>
+                    <img src="/moon_icon.png" draggable={false} className="mt-auto mb-auto w-[70px] h-[80px]" loading="lazy" alt="icon" />
+                    <h1 className="uppercase font-black mb-auto mt-auto">Studio Vivre   </h1>
                 </Link>
 
                 {/* Links */}
                 <div className="flex flex-row gap-4 mt-auto mb-auto ml-4 text-sm">
                     <a href="/" className="hover:text-gray-300">Home</a>
-                    <a href="/about" className="hover:text-gray-300">About</a>
+                    <a href="/about" className="hover:text-gray-300">About & Work</a>
                     <a href="/projects" className="hover:text-gray-300">Projects</a>
                     <a href="/contact" className="hover:text-gray-300">Contact</a>
                 </div>
