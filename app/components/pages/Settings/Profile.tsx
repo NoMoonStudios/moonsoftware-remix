@@ -3,13 +3,31 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { toast } from "sonner";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogOverlay,
+  AlertDialogPortal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { UserInfo } from "~/types/init";
-const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpdate?: () => void }) => {
+const Profile = ({
+  userInfo,
+  onUpdate = () => {},
+  dashboard = false,
+}: {
+  userInfo: UserInfo;
+  onUpdate?: () => void;
+  dashboard?: boolean;
+}) => {
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState(userInfo.displayName);
   const [pronouns, setPronouns] = useState(userInfo.pronouns);
@@ -44,7 +62,7 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
   const deleteBanner = async () => {
     setLoading(true);
     const response = await fetch("/api/v1/profile/removeBanner", {
-          method: "POST",
+      method: "POST",
     });
     if (!response.ok) throw new Error("Failed to delete banner");
     setBannerFile(null);
@@ -55,7 +73,7 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      
+
       const formData = new FormData();
       formData.append("displayName", displayName);
       formData.append("bio", bio);
@@ -79,7 +97,6 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     setDisplayName(userInfo.displayName);
@@ -89,18 +106,11 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
     setBannerPreview(userInfo.banner);
   }, [userInfo]);
 
-  return (
-    <div className="h-full flex flex-col gap-6 pt-2">
-      <div className="text-sm text-muted-foreground text-center absolute top-0 left-0 bg-gray-900 border-b-1 border-r-1 h-8 rounded-br w-70 flex flex-row justify-evenly items-center gap-2">
-       <span>Experimental</span>
-       <Separator orientation="vertical"  />
-       <span>Subject to Change</span>
-      </div>
+  return (<div className="flex flex-col gap-4 w-full justify-between h-full">
+    <div className="flex flex-col gap-6 pt-2" style={dashboard ? {} : {maxWidth: "400px"}}>
       {/* Avatar Upload */}
-      <div className="flex flex-row items-center gap-2">
+      <div className="flex flex-row w-full justify-center items-center gap-2">
         <div className="flex items-center gap-4">
-
-
           {/* AVATAR */}
           <div className="relative">
             <img
@@ -108,59 +118,64 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
               alt="Avatar preview"
               className="w-32 h-32 rounded-full object-cover"
             />
-            <motion.label 
-              htmlFor="avatar" 
+            <motion.label
+              htmlFor="avatar"
               className="absolute top-0 left-0 w-full h-full rounded-full flex justify-center items-center opacity-0 bg-black cursor-pointer"
-              whileHover={{ opacity: .5 }}
+              whileHover={{ opacity: 0.5 }}
             >
-              <Image className="w-8 h-8"/>
+              <Image className="w-8 h-8" />
             </motion.label>
           </div>
 
-
           {/* BANNER */}
           <div className="relative bg-black rounded w-64 h-32">
-            {bannerPreview &&
+            {bannerPreview && (
               <img
                 src={bannerPreview}
                 alt="Banner preview"
                 className="w-full h-full rounded object-cover"
               />
-            }
-            <motion.label 
-              htmlFor="banner" 
+            )}
+            <motion.label
+              htmlFor="banner"
               className="absolute top-0 left-0 w-full h-full rounded flex justify-center items-center opacity-0 bg-black cursor-pointer"
-              whileHover={{ opacity: .5 }}
+              whileHover={{ opacity: 0.5 }}
             >
-              <Image className="w-8 h-8"/>
+              <Image className="w-8 h-8" />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  {bannerPreview && <Button variant={'secondary'} className="absolute z-10 top-2 right-2 w-8 h-8 rounded flex justify-center items-center cursor-pointer">
-                  <Trash className="w-8 h-8"/>
-                  </Button>}
+                  {bannerPreview && (
+                    <Button
+                      variant={"secondary"}
+                      className="absolute z-10 top-2 right-2 w-8 h-8 rounded flex justify-center items-center cursor-pointer"
+                    >
+                      <Trash className="w-8 h-8" />
+                    </Button>
+                  )}
                 </AlertDialogTrigger>
-                <AlertDialogPortal >
+                <AlertDialogPortal>
                   <AlertDialogOverlay />
                   <AlertDialogContent>
-                    <AlertDialogTitle>
-                      Are you sure?
-                    </AlertDialogTitle>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                       This action will take effect immediately
                     </AlertDialogDescription>
                     <div className="flex flex-row gap-2 justify-end">
-                      
-                    <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="cursor-pointer" onClick={deleteBanner}>Remove Banner</AlertDialogAction>
+                      <AlertDialogCancel className="cursor-pointer">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className="cursor-pointer"
+                        onClick={deleteBanner}
+                      >
+                        Remove Banner
+                      </AlertDialogAction>
                     </div>
                   </AlertDialogContent>
                 </AlertDialogPortal>
               </AlertDialog>
             </motion.label>
           </div>
-
-
-
 
           {/* file inputs */}
           <input
@@ -182,23 +197,23 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
         </div>
       </div>
       {/* Display Name Input */}
-      <div className="flex flex-row items-center gap-2">
-        <p className="font-medium w-[120px]">Display Name</p>
+      <div className="flex flex-col items-center gap-2">
+        <p className="font-medium w-full">Display Name</p>
         <Input
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="w-min"
+          className="w-full"
           disabled={loading}
         />
       </div>
-      <div className="flex flex-row items-center gap-2">
-        <p className="font-medium w-[120px]">Pronouns</p>
+      <div className="flex flex-col items-center gap-2">
+        <p className="font-medium w-full">Pronouns</p>
         <Input
           type="text"
           value={pronouns}
           onChange={(e) => setPronouns(e.target.value)}
-          className="w-min"
+          className="w-full"
           placeholder="Pronouns"
           disabled={loading}
         />
@@ -208,24 +223,32 @@ const Profile = ({ userInfo, onUpdate = () => {} }: { userInfo: UserInfo, onUpda
         <Textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          className="w-sm h-30 resize-none"
+          className="w-full h-30 resize-none"
           placeholder="Enter your bio"
           disabled={loading}
         />
       </div>
 
       {/* Save Button */}
-      <div className="mt-auto flex justify-end">
-      <Button
+      
+    </div>
+    <div className=" flex justify-end">
+        <Button
           onClick={handleSubmit}
           disabled={loading || !displayName.trim()}
           variant="outline"
           className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? <><CgSpinner className="animate-spin"/>Saving...</> : "Save Changes"}
+          {loading ? (
+            <>
+              <CgSpinner className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
         </Button>
-      </div>
-    </div>
+      </div></div>
   );
 };
 

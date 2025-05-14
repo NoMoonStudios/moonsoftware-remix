@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { darkenHexColor } from "~/lib/Utilities/ClientFunctions/Color";
-import ProfileBadges from "~/components/ui/profile-badges";
+import ProfileBadges from "~/components/features/ProfileBadges";
 import { ArrowRight, Pill } from "lucide-react";
 
 

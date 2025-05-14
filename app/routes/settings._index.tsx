@@ -30,8 +30,6 @@ const Settings = () => {
   
   const items = userInfo ? {
     Profile: <Profile userInfo={userInfo} onUpdate={LoadUser}/>,
-    Account: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
-    Commisions: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
     Billing: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
     Privacy: <div className="flex justify-center items-center w-full h-full text-3xl text-gray-600">Coming Soon</div>,
   } : {}

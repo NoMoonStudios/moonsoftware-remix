@@ -28,6 +28,7 @@ export interface CardsInfo extends Document {
   banner: string;
   avatar: string;
   links: Array<CardsLink>;
+  tabs: Array<CardsTab>,
   displayName: string;
   showTimestamps: boolean;
   // these below are added dynamically in the request
@@ -45,6 +46,7 @@ const schema: Schema = new mongoose.Schema({
   about: String,
   displayName: String,
   showTimestamps: Boolean,
+  tabs: Array<CardsTab>,
   banner: String,
   avatar: String,
   links: Array<CardsLink>,

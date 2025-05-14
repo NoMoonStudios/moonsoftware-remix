@@ -44,7 +44,9 @@ function PortfolioPage() {
             </h1>
             <p className="opacity-50">Use MoonSoftware Cards for free to elevate your business Cards to the next level</p>
             <Feature>Brokie</Feature>
-            <Button className="mt-auto">Get Started</Button>
+            <Button className="mt-auto" onClick={() => {
+              fetch("/api/v1/cards/create", { method: "POST" });
+            }}>Get Started</Button>
           </div>
         </div>
       </div>

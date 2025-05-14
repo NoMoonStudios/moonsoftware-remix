@@ -24,6 +24,8 @@ import {
 import { format } from "date-fns";
 import { FaDiscord } from "react-icons/fa6";
 import { Button } from "~/components/ui/button";
+import ChangeDisplayName from "./ChangeDisplayName";
+import ChangeProfileAvatar from "./ChangeProfileAvatar";
 
 const months = [
   "January",
@@ -337,8 +339,8 @@ const Overview = ({ userInfo }: { userInfo: UserInfo }) => {
             </CardHeader>
             <CardContent className="pt-4">
               <div className="grid gap-2 grid-cols-2 grid-rows-2">
-                <Button variant="outline">Change Display Name</Button>
-                <Button variant="outline">Change Profile Avatar</Button>
+                <ChangeDisplayName userInfo={userInfo} />
+                <ChangeProfileAvatar userInfo={userInfo} />
                 <Button variant="outline">Configure Portfolio</Button>
                 <Button variant="outline">Settings</Button>
               </div>

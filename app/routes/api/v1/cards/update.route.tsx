@@ -90,7 +90,7 @@ async function processFiles(
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function savePortfolioData(user: UserInfo, data: any) {
+async function saveCardData(user: UserInfo, data: any) {
   await Promise.all([
     Cards.updateOne(
       { userid: user.userid },
@@ -141,7 +141,7 @@ export async function action({ request }: ActionFunctionArgs) {
     avatar: formData.get("avatar") as string,
     banner: formData.get("banner") as string
   });
-  await savePortfolioData(user, finalData);
+  await saveCardData(user, finalData);
   return new Response("Success", { status: 200 });
 }
 

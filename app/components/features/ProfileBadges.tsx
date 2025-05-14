@@ -1,5 +1,5 @@
 import badges, { BadgeInfo } from "~/lib/Modules/Badges";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const BadgeWrapper = ({badge}: {badge: BadgeInfo}) => {
   return (

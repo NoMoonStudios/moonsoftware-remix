@@ -1,4 +1,4 @@
-import Tabs from './Tabs';
+import TabEditor from './TabEditor';
 
-export default Tabs;
+export default TabEditor;
 

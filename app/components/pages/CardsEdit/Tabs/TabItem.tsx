@@ -23,39 +23,6 @@ const TabItem = ({ data, addButton, onClick }: TabItemData) => {
     return null;
   }
   return (
-    // <motion.div
-    //   className="bg-gray-900 w-full h-70 relative overflow-hidden border border-gray-800 rounded-2xl"
-    //   initial="initial"
-    //   whileHover="hover"
-    //   animate="initial"
-    //   onClick={onClick && onClick}
-    //   style={onClick && { cursor: "pointer" }}
-    // >
-    //   <img
-    //     src={data.image}
-    //     alt=""
-    //     className="w-full h-full object-cover"
-    //   />
-    //   <motion.div
-    //     className="flex flex-col gap-2 p-4 h-full absolute left-0 text-white w-full select-none"
-    //     variants={{
-    //       initial: {
-    //         top: "100%",
-    //         transform: "translateY(-60px)",
-    //         background: "rgba(0,0,0,.1)",
-    //         backdropFilter: "blur(5px)",
-    //       },
-    //       hover: {
-    //         top: "60px",
-    //         background: "rgba(0,0,0,0.4)",
-    //         backdropFilter: "blur(50px)",
-    //       },
-    //     }}
-    //   >
-    //     <h2 className="text-2xl font-bold">{data.title}</h2>
-    //     <p className="text-sm">{data.description}</p>
-    //   </motion.div>
-    // </motion.div>
     <motion.div
       className="bg-gray-900 w-full h-70 relative overflow-hidden border border-gray-800 rounded-2xl"
       initial="initial"

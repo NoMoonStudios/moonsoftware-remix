@@ -37,33 +37,44 @@ export async function action({ request }: ActionFunctionArgs) {
         for await (const chunk of data) chunks.push(chunk);
         return Buffer.concat(chunks).toString('utf-8');
     });
-    if (!formData) return new Response("Failed to parse form data", { status: 400 });
+    if (!formData) {
+      return new Response("Failed to parse form data", { status: 400 });
+    }
+    
+    const updates: Record<string, any> = {};
+    
     const displayName = formData.get("displayName");
+    if (typeof displayName === "string") {
+      updates.displayName = displayName;
+    }
+    
     const bio = formData.get("bio");
-    const avatar = formData.get("avatar");
-    const banner = formData.get("banner");
+    if (typeof bio === "string") {
+      updates.bio = bio;
+    }
+    
     const pronouns = formData.get("pronouns");
-    if (typeof displayName !== "string" || typeof bio !== "string" || typeof pronouns !== "string") {
-      return new Response("Bad request", { status: 400 });
+    if (typeof pronouns === "string") {
+      updates.pronouns = pronouns;
     }
-    const av = avatar && typeof avatar === "string" && { avatar: avatar }
-    if (av) {
+    
+    const avatar = formData.get("avatar");
+    if (avatar && typeof avatar === "string") {
       DeleteFile(userSchema.avatar);
+      updates.avatar = avatar;
     }
-
-    const bn = banner && typeof banner === "string" && { banner: banner }
-    if (bn) {
+    
+    const banner = formData.get("banner");
+    if (banner && typeof banner === "string") {
       DeleteFile(userSchema.banner);
+      updates.banner = banner;
     }
-
-    userSchema.set({
-      displayName: displayName || userSchema.displayName,
-      pronouns: pronouns || "",
-      bio: bio || "",
-      ...av,
-      ...bn
-    });
-
+    
+    if (!Object.keys(updates).length) {
+      return new Response("No valid fields provided to update", { status: 400 });
+    }
+    
+    userSchema.set(updates);
     await userSchema.save();
     await ServerFunctions.ClearProfileCache(userSchema.userid);
 

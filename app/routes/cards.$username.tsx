@@ -4,151 +4,14 @@ import Navigation from "~/components/pages/Navigation";
 import { Skeleton } from "~/components/ui/skeleton";
 import { GetUserSession } from "~/lib/Utilities/client";
 import { CardsInfo } from "~/models/Cards";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { AlertCircle, Bug, Cat, Clock, Heart, Sparkles } from "lucide-react";
-import { format } from "date-fns";
+import { AlertCircle } from "lucide-react";
 import { UserInfo } from "~/types/init";
-import { Separator } from "~/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import LinkRenderer from "~/components/ui/link-renderer";
-import ProfileBadges from "~/components/ui/profile-badges";
-import { CardBody, CardContainer, CardItem } from "~/components/ui/3d-card";
-
-function PortfolioCard({ data }: { data: CardsInfo }) {
-  const {
-    username,
-    about,
-    displayName,
-    createdAt,
-    updated,
-    avatar,
-    links,
-    showTimestamps,
-  } = data;
-
-  return (
-    <CardContainer
-      className="inter-var"
-      containerClassName="h-full absolute inset-0"
-    >
-      <CardBody className="w-2xl p-4 flex flex-col gap-4 relative group/card">
-        <div className="absolute inset-0 bg-gray-950/20 backdrop-blur-lg rounded-2xl"></div>
-        {/* Header Section */}
-        <div
-          className={`grid grid-cols-[auto_1fr] gap-x-4 ${
-            about ? "items-start" : "items-center"
-          }`}
-        >
-          <CardItem translateZ={40} className="row-span-2 self-start select-none">
-            <Avatar className="relative h-32 w-32 rounded-full overflow-hidden">
-              <AvatarImage src={avatar} alt={`@${username}`} />
-              <AvatarFallback>{displayName}</AvatarFallback>
-            </Avatar>
-          </CardItem>
-
-          <CardItem translateZ={30} className="col-start-2 row-start-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-4xl font-bold">{displayName}</h2>
-              <ProfileBadges profileInfo={data} />
-            </div>
-          </CardItem>
-
-          {about && (
-            <CardItem translateZ={20} className="col-start-2 row-start-2">
-              <div className="space-y-2">
-                <p className="*:text-xl leading-relaxed whitespace-pre-line">
-                  {about}
-                </p>
-              </div>
-            </CardItem>
-          )}
-        </div>
-        {
-          //Concept showcase will be replaced soon with actual shit
-          data.userid == '96127444' &&
-          <div className="w-full justify-stretch grid grid-cols-3 h-25 gap-2 select-none">
-            <CardItem translateZ={50} rotateY={-20} className="bg-pink-800/30 w-full rounded flex justify-center flex-col items-center" >
-              <div className="font-mono text-4xl flex flex-row items-center gap-2 text-pink-600"> 
-                <Bug size={55}/>
-                <span className="font-extrabold">
-                  Zero
-                </span>
-              </div>
-              <div className="font-mono text-2xl flex flex-row items-center gap-2 text-fuchsia-400">
-                Critical Bugs
-              </div>
-            </CardItem>
-            <CardItem translateZ={100} className="bg-emerald-700/20 w-full rounded flex justify-center flex-col items-center" >
-              <div className="font-mono text-2xl flex flex-row items-center gap-2 text-emerald-400"> 
-                <Sparkles size={55}/>
-                <span className="w-min font-extrabold">
-                  High Quality
-                </span>
-              </div>
-              <div className="font-mono text-lg flex flex-row items-center gap-2 text-sky-400">
-                Clean and Pretty
-              </div>
-            </CardItem>
-            <CardItem translateZ={50} rotateY={20} className="bg-blue-700/20 w-full rounded flex justify-center flex-col items-center" >
-              <div className="font-mono text-4xl flex flex-row items-center gap-2 text-blue-400 "> 
-                <Cat size={55}/>
-                <span className="w-min font-extrabold">
-                  Cat?
-                </span>
-              </div>
-              <div className="font-mono text-lg flex flex-row items-center gap-2 text-purple-400">
-                i love cats <Heart size={20}/>
-              </div>
-            </CardItem>
-          </div>
-        }
-
-        {/* Links Section */}
-        {links.length > 0 && (
-          <CardItem translateZ={20} className="w-full space-y-2 mt-auto">
-            {/* <div className="flex items-center gap-2 text-gray-600">
-              <Link2 className="h-4 w-4" />
-              <span className="text-sm font-medium">Links</span>
-            </div> */}
-            <div className="flex flex-wrap gap-3 justify-center">
-              {links.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 p-1"
-                >
-                  <LinkRenderer link={link} tooltip />
-                </a>
-              ))}
-            </div>
-          </CardItem>
-        )}
-
-        {/* Footer Timestamps */}
-        {showTimestamps && (
-          <>
-            <Separator />
-            <div>
-              <div className="flex items-center gap-2 text-sm text-white/50">
-                <Clock className="h-4 w-4" />
-                <span>
-                  Created: {format(createdAt, "MMM dd, yyyy")} • Last updated:{" "}
-                  {format(updated, "MMM dd, yyyy")}
-                </span>
-              </div>
-            </div>
-          </>
-        )}
-      </CardBody>
-    </CardContainer>
-  );
-}
+import ProfileCards from "~/components/features/UserCards";
 
 const SkeletonProfile = () => {
   return (
@@ -166,9 +29,7 @@ const SkeletonProfile = () => {
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>();
-  const [CardsInfo, SetPorfolioInfo] = useState<
-    CardsInfo | undefined
-  >();
+  const [CardsInfo, SetPorfolioInfo] = useState<CardsInfo | undefined>();
   const [notFound, setNotFound] = useState(false);
   const params = useParams();
   useEffect(() => {
@@ -235,17 +96,8 @@ const Profile = () => {
               </TooltipTrigger>
             </Tooltip>
           )}
-          {CardsInfo.banner && (
-            <>
-              <img
-                className="w-full h-full object-cover absolute z-[-1] top-0 left-0"
-                src={CardsInfo.banner}
-                alt=""
-              />
-              <div className="w-full h-full bg-gradient-to-t via-transparent from-black absolute z-[-1] top-0 left-0"></div>
-            </>
-          )}
-          <PortfolioCard data={CardsInfo} />
+
+          <ProfileCards data={CardsInfo} includeBanner />
         </>
       ) : (
         <SkeletonProfile />
