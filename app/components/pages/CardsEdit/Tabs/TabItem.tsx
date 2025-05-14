@@ -32,7 +32,7 @@ const TabItem = ({ data, addButton, onClick }: TabItemData) => {
       style={onClick && { cursor: "pointer" }}
     >
       <motion.img
-        src={data.image}
+        src={data.imageUrl}
         alt=""
         className="w-full h-full object-cover"
         transition={{ duration: 0.4 }}

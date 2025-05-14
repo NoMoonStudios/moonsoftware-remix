@@ -1,22 +1,23 @@
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
-import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
 import { useState } from "react";
-import TabItem from "./TabItem";
-const TabCreator = () => {
+import TabItem from "../TabItem";
+import { toast } from "sonner";
+const TabCreator = ({index}: {index: number}) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [selecting, setSelecting] = useState(true);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -38,6 +39,30 @@ const TabCreator = () => {
     setImageFile(null);
   };
 
+  const upload = async () => {
+    try {
+      if (!imageFile) return;
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("image", imageFile);
+      formData.append("tab", index.toString());
+      const response = await fetch("/api/v1/cards/tabs/items/new", {
+        method: "POST",
+        body: formData,
+      });
+      console.log(response);
+      
+      if (!response.ok) throw new Error("Failed to update profile");
+      toast.success("uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload image, please try again.");
+    }
+    setLoading(false);
+    reset();
+  }
+
   return (
     <Dialog open={imageFile !== null}>
       <label htmlFor="image-upload">
@@ -56,8 +81,8 @@ const TabCreator = () => {
         </DialogHeader>
           <img src={imagePreview} className="w-full rounded-xl max-h-90 object-contain" alt="" />
 
-        <Input placeholder="Name" />
-        <Textarea placeholder="Description" className="resize-none" />
+        <Input disabled={loading} placeholder="Name" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Textarea disabled={loading} placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none" />
 
         {selecting && (
           <div className="flex gap-2 items-center">
@@ -66,8 +91,8 @@ const TabCreator = () => {
           </div>
         )}
         <DialogFooter>
-            <Button variant={"ghost"} onClick={reset}>Cancel</Button>
-            <Button variant={"default"} onClick={reset}>Confirm</Button>
+            <Button variant={"ghost"} onClick={reset} disabled={loading}>Cancel</Button>
+            <Button variant={"default"} onClick={upload} disabled={loading}>Confirm</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "~/components/ui/card";
-import NewTabButton from "./NewTabButton";
+import NewTabButton from "./Components/NewTabButton";
 import { CardsTab } from "~/models/Cards";
 
 const TabsTopBar = ({

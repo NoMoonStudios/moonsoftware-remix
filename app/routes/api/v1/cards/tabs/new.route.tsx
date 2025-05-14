@@ -5,7 +5,7 @@ import ErrorCodes from "~/lib/json/errorCodes.json";
 import Cards from "~/models/Cards";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const canAccess = RateLimiter(request, "tabs_create", 5 * 1000, 40);
+  const canAccess = RateLimiter(request, "tabs_action", 5 * 1000, 40);
   if (!canAccess)
     return new Response("Too many requests", {
       status: ErrorCodes.TOO_MANY_REQUESTS,
@@ -22,7 +22,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
     await Cards.updateOne(
       { userid: user.userid },
-      { $push: { tabs: { $each: [{name:name, items:[]}] } } }
+      { $push: { tabs: { $each: [{
+        name:name, items:[]}
+      ] } } }
     );
     return new Response("Success", { status: 200 });
   } catch (error) {

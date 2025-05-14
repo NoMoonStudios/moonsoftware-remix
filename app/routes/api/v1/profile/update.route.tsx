@@ -7,26 +7,39 @@ import { UploadHandlerPart } from "@remix-run/node";
 
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const canAccess = RateLimiter(request, "portfolio_update", 5 * 1000, 3)
+  const canAccess = RateLimiter(request, "profile_update", 5 * 1000, 3)
   if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
   return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const canAccess = RateLimiter(request, "portfolio_update", 5 * 1000, 3)
+  const canAccess = RateLimiter(request, "profile_update", 5 * 1000, 3)
   if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
   if (request.method !== "POST") return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
   
   const userSchema = await ServerFunctions.GetUserSchema(request);
   
+  const uploadedFiles: string[] = [];
+  const DeleteUploaded = async () => {
+    for (const url of uploadedFiles) {
+      try {
+        await DeleteFile(url);
+      } catch (err) {
+        console.error("Error deleting file:", url, err);
+      }
+    }
+  };
   try {
     if (!userSchema) return new Response("Unauthorized", { status: ErrorCodes.UNAUTHORIZED });
+    
     const formData = await unstable_parseMultipartFormData(
       request,
       async ({ name, data, filename }: UploadHandlerPart): Promise<string | null> => {
         if (name == "avatar" || name == "banner") {
           if (filename) {
-            return await UploadFile(data);
+            const url = await UploadFile(data);
+            uploadedFiles.push(url);
+            return url;
           }
           return null
         }
@@ -38,6 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
         return Buffer.concat(chunks).toString('utf-8');
     });
     if (!formData) {
+      await DeleteUploaded();
       return new Response("Failed to parse form data", { status: 400 });
     }
     
@@ -81,7 +95,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response("Success", { status: 200 });
   } catch (err) {
     console.log(err);
-    
+    try { await DeleteUploaded(); } catch (deleteErr) {
+      console.error('Error deleting uploaded files:', deleteErr);
+    }
     return new Response("Failed to parse form data", { status: 400 });
   }
 }

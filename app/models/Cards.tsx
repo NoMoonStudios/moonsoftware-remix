@@ -9,7 +9,7 @@ export interface CardsLink {
 }
 
 export interface CardsItem {
-  image: string;
+  imageUrl: string;
   title: string;
   description: string;
 }

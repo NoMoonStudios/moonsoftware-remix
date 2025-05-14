@@ -4,13 +4,13 @@ import { ChevronLeft, ChevronRight, Pen, Trash } from "lucide-react";
 import { useState } from "react";
 import { CardsInfo, CardsItem, CardsTab } from "~/models/Cards";
 import { AnimatePresence, motion } from "framer-motion";
-import TabCreator from "./TabCreator";
+import TabCreator from "./Components/TabCreator";
 import { UserInfo } from "~/types/init";
-import NewTabButton from "./NewTabButton";
+import NewTabButton from "./Components/NewTabButton";
 import TabButton from "./TabButton";
-import ActiveItem from "./ActiveItem";
+import ItemDialog from "./ItemDialog";
 import UserCards from "~/components/features/UserCards";
-import DeleteTabButton from "./DeleteTabButton";
+import DeleteTabButton from "./Components/DeleteTabButton";
 import TabsTopBar from "./TabsTopBar";
 
 const TabEditor = ({
@@ -42,7 +42,7 @@ const TabEditor = ({
       <div className="relative">
         <AnimatePresence>
           {activeItem ? (
-            <ActiveItem activeItem={activeItem} setActiveItem={setActiveItem} />
+            <ItemDialog activeItem={activeItem} setActiveItem={setActiveItem} />
           ) : (
             // TABS AND ITEMS
             <motion.div
@@ -106,7 +106,7 @@ const TabEditor = ({
                   <div className="grid grid-cols-2 gap-4">
                     {pageItems.map((item, idx) =>
                       item.addButton ? (
-                        <TabCreator key={idx} />
+                        <TabCreator key={idx} index={idx} />
                       ) : (
                         <TabItem
                           key={idx}

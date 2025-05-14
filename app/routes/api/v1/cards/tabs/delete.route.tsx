@@ -5,7 +5,7 @@ import ErrorCodes from "~/lib/json/errorCodes.json";
 import Cards from "~/models/Cards";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const canAccess = RateLimiter(request, "tabs_delete", 5 * 1000, 40);
+  const canAccess = RateLimiter(request, "tabs_action", 5 * 1000, 40);
   if (!canAccess)
     return new Response("Too many requests", {
       status: ErrorCodes.TOO_MANY_REQUESTS,
