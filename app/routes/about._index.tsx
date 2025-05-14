@@ -59,8 +59,13 @@ export default function About() {
             <div className="w-[40vw] mt-[10vh]">
                 <h1 className="text-3xl font-bold">About Us</h1>
                 <p className="text-base opacity-70 mt-[3vh]">
-                    Moon Software is a development company that specializes in creating stunning assets and games. We are passionate about creating high-quality products that meet the needs of our clients.
-                </p>
+  Moon Software our parent development company, specializes in creating stunning assets and games. We are passionate about creating high-quality products that meet the needs of our clients.
+</p>
+
+<p className="text-base opacity-70 mt-[3vh]">
+  At Studio Vivre, we are certain that in life, uncertainty is often the only certainty we have — and that it’s easy to lose hope in a world that can sometimes feel cruel and unforgiving. But even through the hardest times and the deepest trials, when you feel like there's no way you’ll make it out this time, there is still hope and meaning to be found. We believe that if you take life too seriously, you’ll never make it out alive. So, when life feels like a suffocating fog closing in around you, we’re here to invite you to live with spirit, integrity, and aspiration — to help you find your way and witness the vibrant and inspiring moments that make life truly worth it — To Live. Because creation is what empowers us to shape our lives for the better and find purpose, even in the most uncertain of times. And when we come together, there’s no telling what we can achieve.
+</p>
+
 
                 <hr className="my-[8vh] opacity-40" />
 

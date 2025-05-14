@@ -12,15 +12,21 @@ export default function Navigation() {
                     <div className="flex flex-col gap-2">
                         <a href="/" className="flex flex-row gap-1 h-auto select-none">
                             <img src="/moon_icon.png" draggable={false} className="mt-auto mb-auto w-[30px] h-[30px]" loading="lazy" alt="icon" />
-                            <h1 className="uppercase font-black mb-auto mt-auto">Moonsoftware</h1>
+                            <h1 className="uppercase font-black mb-auto mt-auto">Studio Vivre</h1>
                         </a>
                         <p className="opacity-40 text-[13px] max-w-[300px]">
                             Development company creating stunning assets and games.
                         </p>
                     </div>
-                    <Button variant={"secondary"} className="flex flex-row">
-                        <CiMail size={40} />
-                        Contact Us
+                    <Button
+                        asChild
+                        variant="secondary"
+                        className="flex flex-row"
+                    >
+                        <a href="https://discord.gg/robloxdevelopers" target="_blank" rel="noopener noreferrer">
+                            <CiMail size={40} />
+                            Contact Us
+                        </a>
                     </Button>
                 </div>
 
@@ -35,13 +41,13 @@ export default function Navigation() {
 
                 <div className="flex flex-col gap-2">
                     <a href="https://x.com/moonsftwrroblox?s=21" className="flex flex-row gap-1 hover:text-gray-300"><FaXTwitter size={20} /> Twitter</a>
-                    <a href="/" className="flex flex-row gap-1 hover:text-gray-300"><FaLinkedin size={20} /> LinkedIn</a>
+                    <a href="/" className="flex flex-row gap-1 hover:text-gray-300"><FaLinkedin size={20} />LinkedIn</a>
                     <a href="https://discord.gg/robloxdevelopers" className="flex flex-row gap-1 hover:text-gray-300"><FaDiscord size={20} /> Discord</a>
                 </div>
             </div>
 
             <div className="flex flex-row mt-12 text-center opacity-70">
-                <span>Copyright &#169; {new Date().getUTCFullYear()} Moonsoftware. All Rights Reserved.<br />Made with 💖 by <span className="text-green-300">ByteArc</span> Technologies</span>
+                <span>Copyright &#169; {new Date().getUTCFullYear()} MoonSoftware. All Rights Reserved.<br />Made with 💖 by <span className="text-green-300">ByteArc</span> Technologies</span>
             </div>
         </footer>
     );

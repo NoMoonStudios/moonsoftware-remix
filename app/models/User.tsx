@@ -63,7 +63,7 @@ const schema : Schema = new mongoose.Schema({
     username : String,
     pronouns : String,
 
-    userid: { type: String, required: true, unique: true, index: true },
+    userid: { type: String, required: true, unique: true },
     email : String,
     passwordHash : String,
 
