@@ -1,13 +1,20 @@
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
+import { useState } from "react";
+import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { CardsItem } from "~/models/Cards";
 
 type TabItemData = {
   data?: CardsItem;
   addButton?: boolean;
   onClick?: () => void;
+  onDelete?: () => void;
 };
-const TabItem = ({ data, addButton, onClick }: TabItemData) => {
+const TabItem = ({ data, addButton, onClick, onDelete }: TabItemData) => {
+  const [open, setOpen] = useState(false);
+
+
   if (addButton) {
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
@@ -31,6 +38,44 @@ const TabItem = ({ data, addButton, onClick }: TabItemData) => {
       onClick={onClick && onClick}
       style={onClick && { cursor: "pointer" }}
     >
+      <motion.div
+        className="absolute top-4 right-4 z-10"
+        variants={{
+          initial: {
+            opacity: 0,
+          },
+          hover: {
+            opacity: 1 
+          },
+        }}
+      >
+        <Button variant={"outline"} className="w-8 h-8 bg-gray-800/40" onClick={(e) => { e.stopPropagation(); setOpen(true)}}>
+          <Trash size={20} />
+        </Button>
+      </motion.div>
+      <Dialog open={open} >
+        <DialogContent onClick={(e) => { e.stopPropagation(); }}>
+          <DialogHeader>
+            <DialogTitle>Delete Item</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this item?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-row justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={(e) => { e.stopPropagation(); setOpen(false)}}
+            >
+              Cancel
+            </Button>
+            <Button onClick={(e) => { e.stopPropagation(); setOpen(false); onDelete && onDelete(); }}variant={"destructive"}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
       <motion.img
         src={data.imageUrl}
         alt=""
@@ -77,13 +122,13 @@ const TabItem = ({ data, addButton, onClick }: TabItemData) => {
           style={{ textShadow: "0px 0px 15px rgba(0, 0, 0, 0.7)" }}
           transition={{ duration: 0.45 }}
           variants={{
-            initial: { 
-              textShadow: "0px 0px 15px rgba(0, 0, 0, 0.7)" , 
-              marginBottom: "50px"
+            initial: {
+              textShadow: "0px 0px 15px rgba(0, 0, 0, 0.7)",
+              marginBottom: "50px",
             },
-            hover: { 
-              textShadow: "none", 
-              marginBottom: "0px"
+            hover: {
+              textShadow: "none",
+              marginBottom: "0px",
             },
           }}
         >

@@ -13,16 +13,20 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
 const DeleteTabButton = ({
-  setSelectedTab,
+  setSelectedTabIndex,
   selectedTab,
+  disabled = false,
   onDelete = () => {},
 }: {
-  setSelectedTab: React.Dispatch<React.SetStateAction<CardsTab | null>>;
-  selectedTab: CardsTab;
+  setSelectedTabIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedTab: CardsTab | null;
+  disabled?: boolean;
   onDelete: (deleteTab: CardsTab) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  if (!selectedTab) return null;
 
   const deleteTab = async () => {
     const name = selectedTab.name;
@@ -35,7 +39,7 @@ const DeleteTabButton = ({
     setLoading(false);
     setOpen(false);
     if (!response.ok) return toast.error("Failed to deleted tab");
-    setSelectedTab(null);
+    setSelectedTabIndex(null);
     onDelete(selectedTab);
     toast.success("Tab deleted successfully");
   }
@@ -56,6 +60,10 @@ const DeleteTabButton = ({
             <DialogDescription className="text-red-500">
               This action cannot be undone
             </DialogDescription>
+            
+            {disabled && <DialogDescription className="text-red-500">
+              This Feature is Disabled - Deleting Non Empty Tab is Unimplemented
+            </DialogDescription>}
           </DialogHeader>
 
           <div className="flex flex-row justify-end gap-2 mt-4">
@@ -66,7 +74,7 @@ const DeleteTabButton = ({
             >
               Cancel
             </Button>
-            <Button onClick={deleteTab} disabled={loading} variant={"destructive"}>
+            <Button onClick={deleteTab} disabled={loading || disabled} variant={"destructive"}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete Tab
             </Button>

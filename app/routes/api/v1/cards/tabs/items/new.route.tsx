@@ -1,111 +1,93 @@
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  unstable_parseMultipartFormData,
+  unstable_composeUploadHandlers,
+  unstable_createMemoryUploadHandler
+} from "@remix-run/node";
 import RateLimiter from "~/lib/RateLimiter";
 import ErrorCodes from "~/lib/json/errorCodes.json";
 import * as ServerFunctions from "~/lib/Utilities/server";
 import { DeleteFile, UploadFile } from "~/lib/Utilities/ServerFunctions/Files";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  unstable_parseMultipartFormData
-} from "@remix-run/node";
-import Cards, { CardsItem } from "~/models/Cards";
-import { unstable_createMemoryUploadHandler } from "@remix-run/node";
+import Cards from "~/models/Cards";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const canAccess = RateLimiter(request, "tabs_action", 5 * 1000, 3);
-  if (!canAccess) {
-    return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
-  }
+  const canAccess = RateLimiter(request, "profile_update", 5 * 1000, 3);
+  if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
   return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const canAccess = RateLimiter(request, "tabs_action", 5 * 1000, 3);
-  if (!canAccess) {
-    return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
-  }
-  if (request.method !== "POST") {
-    return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
-  }
+  const canAccess = RateLimiter(request, "profile_update", 5 * 1000, 3);
+  if (!canAccess) return new Response("Too many requests", { status: ErrorCodes.TOO_MANY_REQUESTS });
+  if (request.method !== "POST") return new Response("Method not allowed", { status: ErrorCodes.METHOD_NOT_ALLOWED });
 
-  const contentLength = request.headers.get("content-length");
-  if (contentLength && parseInt(contentLength) > 5_000_000) {
-    
-    return new Response("Upload too large", { status: ErrorCodes.BAD_REQUEST });
-  }
+  const userData = await ServerFunctions.GetUserData(request);
+  if (!userData) return new Response("Unauthorized", { status: ErrorCodes.UNAUTHORIZED });
 
-  const user = await ServerFunctions.GetUserData(request);
-  if (!user) {
-    return new Response("Unauthorized", { status: ErrorCodes.UNAUTHORIZED });
-  }
+  let uploadedImageUrl: string | null = null;
 
-  const uploadedFiles: string[] = [];
-  const DeleteUploaded = async () => {
-    for (const url of uploadedFiles) {
+  const uploadHandler = unstable_composeUploadHandlers(
+    async ({ name, data, filename }) => {
+      if (name === "image" && filename) {
       try {
-        await DeleteFile(url);
-      } catch (err) {
-        console.error("Error deleting file:", url, err);
+        const url = await UploadFile(data);
+        uploadedImageUrl = url;
+        return url;
+      } catch (err: any) {
+        console.error("Image upload failed:", err);
+
+        // Handle Cloudinary "file too large" error
+        const isFileTooLarge =
+          typeof err?.message === "string" &&
+          /file.*too.*large|limit/i.test(err.message);
+
+        if (isFileTooLarge) {
+          throw new Response("Uploaded image is too large", {
+            status: ErrorCodes.BAD_REQUEST, // e.g., 413 or define it yourself
+          });
+        }
+
+        // Fallback to internal server error
+        throw new Response("Image upload failed", {
+          status: ErrorCodes.INTERNAL_SERVER_ERROR,
+        });
       }
     }
-  };
+    return undefined;
+    },
+    unstable_createMemoryUploadHandler()
+  );
 
   try {
-    const uploadHandler = unstable_createMemoryUploadHandler({ maxPartSize: 12_000_000 }); // 12MB
     const formData = await unstable_parseMultipartFormData(request, uploadHandler);
 
-    if (!formData) {
-      await DeleteUploaded();
-      return new Response("Failed to parse form data", { status: ErrorCodes.BAD_REQUEST });
+    const title = formData.get("title");
+    const description = formData.get("description");
+    const tab = formData.get("tab");
+    const image = formData.get("image");
+
+    if (
+      typeof title !== "string" ||
+      typeof description !== "string" ||
+      typeof tab !== "string" ||
+      typeof image !== "string"
+    ) {
+      if (uploadedImageUrl) await DeleteFile(uploadedImageUrl);
+      return new Response("Missing or invalid fields", { status: ErrorCodes.BAD_REQUEST });
     }
 
-    const title = formData.get("title")?.toString().trim();
-    const description = formData.get("description")?.toString().trim();
-    const imageFile = formData.get("image");
-    const tab = formData.get("tab")?.toString().trim();
-
-    if (!title || !description || !imageFile || !tab) {
-      await DeleteUploaded();
-      console.warn("Missing required fields", { title, description, imageFile, tab });
-      return new Response("Missing fields", { status: ErrorCodes.BAD_REQUEST });
-    }
-
-    let imageUrl: string;
-    try {
-      if (typeof imageFile === "object" && imageFile instanceof File) {
-        const buffer = new Uint8Array(await imageFile.arrayBuffer());
-        imageUrl = await UploadFile((async function* () {
-          yield buffer;
-        })());
-        uploadedFiles.push(imageUrl);
-      } else {
-        await DeleteUploaded();
-        return new Response("Invalid image upload", { status: ErrorCodes.BAD_REQUEST });
-      }
-    } catch (uploadErr) {
-      console.error("Upload failed", uploadErr);
-      await DeleteUploaded();
-      return new Response("Image upload failed", { status: ErrorCodes.INTERNAL_SERVER_ERROR });
-    }
-
-    const card: CardsItem = {
-      title,
-      description,
-      imageUrl
-    };
-
-    const key = `tabs.${tab}.items`;
     await Cards.updateOne(
-      { userid: user.userid },
-      { $push: { [key]: { $each: [card] } } }
+      { userid: userData.userid },
+      { $push: { [`tabs.${tab}.items`]: { title, description, imageUrl: uploadedImageUrl || image } } }
     );
-
-    return new Response("Success", { status: ErrorCodes.SUCCESS });
-  } catch (err) {
-    console.error("Unexpected error in tabs action handler:", err);
-    try {
-      await DeleteUploaded();
-    } catch (deleteErr) {
-      console.error("Error deleting uploaded files:", deleteErr);
+    
+    return new Response("Item uploaded successfully", { status: 200 });
+  } catch (error) {
+    console.error("Failed to handle form submission:", error);
+    if (uploadedImageUrl) await DeleteFile(uploadedImageUrl);
+    if (error instanceof Response) {
+      return error;
     }
     return new Response("Internal server error", { status: ErrorCodes.INTERNAL_SERVER_ERROR });
   }

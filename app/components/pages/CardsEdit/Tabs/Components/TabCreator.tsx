@@ -13,16 +13,23 @@ import { Loader } from "lucide-react";
 import { useState } from "react";
 import TabItem from "../TabItem";
 import { toast } from "sonner";
-const TabCreator = ({index}: {index: number}) => {
+import { CardsItem } from "~/models/Cards";
+const TabCreator = ({
+  index,
+  onAdd = () => {},
+}: {
+  index: number | null;
+  onAdd: (item: CardsItem) => void;
+}) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+
 
   const [selecting, setSelecting] = useState(true);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-
     setSelecting(false);
     const file = e.target.files?.[0];
     if (file) {
@@ -41,7 +48,7 @@ const TabCreator = ({index}: {index: number}) => {
 
   const upload = async () => {
     try {
-      if (!imageFile) return;
+      if (!imageFile || index === null) return;
       setLoading(true);
       const formData = new FormData();
       formData.append("title", title);
@@ -53,20 +60,25 @@ const TabCreator = ({index}: {index: number}) => {
         body: formData,
       });
       console.log(response);
-      
+
       if (!response.ok) throw new Error("Failed to update profile");
       toast.success("uploaded successfully");
+      onAdd({
+        title: title,
+        description: description,
+        imageUrl: imagePreview,
+      });
     } catch (error) {
       toast.error("Failed to upload image, please try again.");
     }
     setLoading(false);
     reset();
-  }
+  };
 
   return (
     <Dialog open={imageFile !== null}>
       <label htmlFor="image-upload">
-        <TabItem addButton onClick={reset}/>
+        <TabItem addButton onClick={reset} />
       </label>
       <input
         type="file"
@@ -79,10 +91,25 @@ const TabCreator = ({index}: {index: number}) => {
         <DialogHeader>
           <DialogTitle>Add new Tab Item</DialogTitle>
         </DialogHeader>
-          <img src={imagePreview} className="w-full rounded-xl max-h-90 object-contain" alt="" />
+        <img
+          src={imagePreview}
+          className="w-full rounded-xl max-h-90 object-contain"
+          alt=""
+        />
 
-        <Input disabled={loading} placeholder="Name" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Textarea disabled={loading} placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none" />
+        <Input
+          disabled={loading}
+          placeholder="Name"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <Textarea
+          disabled={loading}
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="resize-none"
+        />
 
         {selecting && (
           <div className="flex gap-2 items-center">
@@ -91,8 +118,12 @@ const TabCreator = ({index}: {index: number}) => {
           </div>
         )}
         <DialogFooter>
-            <Button variant={"ghost"} onClick={reset} disabled={loading}>Cancel</Button>
-            <Button variant={"default"} onClick={upload} disabled={loading}>Confirm</Button>
+          <Button variant={"ghost"} onClick={reset} disabled={loading}>
+            Cancel
+          </Button>
+          <Button variant={"default"} onClick={upload} disabled={loading}>
+            Confirm
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

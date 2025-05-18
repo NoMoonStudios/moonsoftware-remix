@@ -14,7 +14,7 @@ function UserCards({
   bordered = false,
   tabs,
   selectedTab,
-  setSelectedTab,
+  setSelectedTabIndex,
   setTabs
 }: {
   data: CardsInfo;
@@ -23,7 +23,7 @@ function UserCards({
   bordered?: boolean;
   tabs: CardsTab[];
   selectedTab: CardsTab | null;
-  setSelectedTab: React.Dispatch<React.SetStateAction<CardsTab | null>>;
+  setSelectedTabIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setTabs: React.Dispatch<React.SetStateAction<CardsTab[]>>;
 }) {
   const {
@@ -58,7 +58,7 @@ function UserCards({
           <TabsTopBar
             tabs={tabs}
             selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
+            setSelectedTabIndex={setSelectedTabIndex}
             setTabs={setTabs}
             bordered={bordered}
           />

@@ -6,12 +6,12 @@ import { CardsInfo, CardsItem, CardsTab } from "~/models/Cards";
 import { AnimatePresence, motion } from "framer-motion";
 import TabCreator from "./Components/TabCreator";
 import { UserInfo } from "~/types/init";
-import NewTabButton from "./Components/NewTabButton";
 import TabButton from "./TabButton";
 import ItemDialog from "./ItemDialog";
 import UserCards from "~/components/features/UserCards";
 import DeleteTabButton from "./Components/DeleteTabButton";
 import TabsTopBar from "./TabsTopBar";
+import { toast } from "sonner";
 
 const TabEditor = ({
   userInfo,
@@ -22,10 +22,11 @@ const TabEditor = ({
 }) => {
   const [activeItem, setActiveItem] = useState<CardsItem | null>(null);
   const [tabs, setTabs] = useState<CardsTab[]>(cardsInfo.tabs || []);
-  const [selectedTab, setSelectedTab] = useState<CardsTab | null>(null);
+  const [selectedTabIndex, setSelectedTabIndex] = useState<number | null>(null);
+  const selectedTab: CardsTab | null = (selectedTabIndex !== null) ? tabs[selectedTabIndex] : null
   const allItems = [...(selectedTab?.items || []), { addButton: true }];
   const ITEMS_PER_PAGE = 4;
-
+  
   const fullDataPages = Math.floor(allItems.length / ITEMS_PER_PAGE);
   const remainder = allItems.length % ITEMS_PER_PAGE;
 
@@ -36,6 +37,58 @@ const TabEditor = ({
   const pageItems = allItems.slice(startIdx, startIdx + ITEMS_PER_PAGE);
   const showPrev = page > 0;
   const showNext = page < totalPages - 1;
+
+  const onNewItemAdded = (item: CardsItem) => {
+    setTabs(
+      tabs.map((tab, i) => {
+        if (i === selectedTabIndex) {
+          return { ...tab, items: [...tab.items, item] };
+        }
+        return tab;
+      })
+    );
+  }
+
+
+const onItemDeleted = async (item: CardsItem) => {
+  const idx = tabs[selectedTabIndex!]?.items?.findIndex((v) => v.imageUrl === item.imageUrl);
+
+  if (idx === -1) return;
+  
+  const updatedTabs = tabs.map((tab, i) => {
+    if (i === selectedTabIndex) {
+      return {
+        ...tab,
+        items: tab.items.filter((v) => v.imageUrl !== item.imageUrl),
+      };
+    }
+    return tab;
+  });
+
+  setTabs(updatedTabs);
+
+  const res = await fetch("/api/v1/cards/tabs/items/delete", {
+    method: "POST",
+    body: JSON.stringify({ tab: selectedTabIndex, item: idx }),
+  });
+
+  if (res.status !== 200) {
+    toast.error("Failed to delete item");
+    const restoredTabs = [...updatedTabs];
+    restoredTabs[selectedTabIndex!] = {
+      ...restoredTabs[selectedTabIndex!],
+      items: [
+        ...restoredTabs[selectedTabIndex!].items.slice(0, idx),
+        item,
+        ...restoredTabs[selectedTabIndex!].items.slice(idx),
+      ],
+    };
+
+    setTabs(restoredTabs);
+  } else {
+    toast.success("Item deleted successfully");
+  }
+};
 
   return (
     <div className="w-full h-full flex justify-center items-center">
@@ -57,7 +110,7 @@ const TabEditor = ({
                 <TabsTopBar
                   tabs={tabs}
                   selectedTab={selectedTab}
-                  setSelectedTab={setSelectedTab}
+                  setSelectedTabIndex={setSelectedTabIndex}
                   setTabs={setTabs}
                 />
               )}
@@ -70,10 +123,10 @@ const TabEditor = ({
                 }
               >
                 {/* Header */}
-                {selectedTab !== null && (
-                  <div className="flex justify-end items-center gap-2">
+                {selectedTabIndex !== null && (
+                  <div className="flex justify-end items-center gap-2 mb-2">
                     <TabButton
-                      onClick={() => setSelectedTab(null)}
+                      onClick={() => setSelectedTabIndex(null)}
                       tooltip="Rename Tab"
                     >
                       <Pen />
@@ -82,8 +135,9 @@ const TabEditor = ({
                       onDelete={(deletedTab) => {
                         setTabs(tabs.filter((v) => v.name !== deletedTab.name));
                       }}
-                      setSelectedTab={setSelectedTab}
+                      setSelectedTabIndex={setSelectedTabIndex}
                       selectedTab={selectedTab}
+                      disabled={allItems.length > 1}
                     />
                   </div>
                 )}
@@ -95,7 +149,7 @@ const TabEditor = ({
                     <UserCards
                       tabs={tabs}
                       selectedTab={selectedTab}
-                      setSelectedTab={setSelectedTab}
+                      setSelectedTabIndex={setSelectedTabIndex}
                       setTabs={setTabs}
                       data={cardsInfo}
                       bordered
@@ -106,12 +160,13 @@ const TabEditor = ({
                   <div className="grid grid-cols-2 gap-4">
                     {pageItems.map((item, idx) =>
                       item.addButton ? (
-                        <TabCreator key={idx} index={idx} />
+                        <TabCreator key={idx} index={selectedTabIndex} onAdd={onNewItemAdded} />
                       ) : (
                         <TabItem
                           key={idx}
                           data={item as CardsItem}
                           onClick={() => setActiveItem(item as CardsItem)}
+                          onDelete={() => onItemDeleted(item as CardsItem)}
                         />
                       )
                     )}

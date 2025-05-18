@@ -6,13 +6,13 @@ import { CardsTab } from "~/models/Cards";
 const TabsTopBar = ({
   tabs,
   selectedTab,
-  setSelectedTab,
+  setSelectedTabIndex,
   setTabs,
   bordered=true,
 }: {
   tabs: CardsTab[];
   selectedTab: CardsTab | null;
-  setSelectedTab: React.Dispatch<React.SetStateAction<CardsTab | null>>;
+  setSelectedTabIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setTabs: React.Dispatch<React.SetStateAction<CardsTab[]>>;
   bordered?: boolean;
 }) => {
@@ -24,7 +24,7 @@ const TabsTopBar = ({
           (selectedTab === null ? " bg-gray-800 " : "")+
           (bordered ? " " : " border-0")
         }
-        onClick={() => setSelectedTab(null)}
+        onClick={() => setSelectedTabIndex(null)}
       >
         Main
       </Card>
@@ -37,7 +37,7 @@ const TabsTopBar = ({
             (selectedTab?.name === v.name ? "bg-gray-800" : "")+
             (bordered ? " " : " border-0")
           }
-          onClick={() => setSelectedTab(v)}
+          onClick={() => setSelectedTabIndex(i)}
         >
           {v.name}
         </Card>
