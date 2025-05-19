@@ -12,6 +12,7 @@ import UserCards from "~/components/features/UserCards";
 import DeleteTabButton from "./Components/DeleteTabButton";
 import TabsTopBar from "./TabsTopBar";
 import { toast } from "sonner";
+import EditTabNameButton from "./Components/EditTabNameButton";
 
 const TabEditor = ({
   userInfo,
@@ -125,12 +126,20 @@ const onItemDeleted = async (item: CardsItem) => {
                 {/* Header */}
                 {selectedTabIndex !== null && (
                   <div className="flex justify-end items-center gap-2 mb-2">
-                    <TabButton
-                      onClick={() => setSelectedTabIndex(null)}
-                      tooltip="Rename Tab"
-                    >
-                      <Pen />
-                    </TabButton>
+                    <EditTabNameButton
+                      selectedTab={selectedTab}
+                      selectedTabIndex={selectedTabIndex}
+                      onRename={(name) => {
+                        setTabs(
+                          tabs.map((tab, i) => {
+                            if (i === selectedTabIndex) {
+                              return { ...tab, name: name };
+                            }
+                            return tab;
+                          })
+                        );
+                      }}
+                    />
                     <DeleteTabButton
                       onDelete={(deletedTab) => {
                         setTabs(tabs.filter((v) => v.name !== deletedTab.name));

@@ -32,7 +32,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const imageUrl = targetItem.imageUrl;
   if (imageUrl) {
-    await DeleteFile(imageUrl); 
+    await DeleteFile(imageUrl);
   }
 
   await Cards.updateOne(

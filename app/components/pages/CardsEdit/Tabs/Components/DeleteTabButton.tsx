@@ -30,8 +30,8 @@ const DeleteTabButton = ({
 
   const deleteTab = async () => {
     const name = selectedTab.name;
-    setLoading(true);
     if (!name) return;
+    setLoading(true);
     const response = await fetch("/api/v1/cards/tabs/delete", {
       method: "POST",
       body: JSON.stringify({ name: name }),
