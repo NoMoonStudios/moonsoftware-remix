@@ -42,10 +42,10 @@ const EditTabNameButton = ({
     onRename(name);
     toast.success("Tab Renamed successfully");
   }
-  const updateName = (newName) => {
+  const updateName = (newName: string) => {
     setName(newName);
     if (
-      (newName === selectedTab.name) || 
+      (newName === selectedTab?.name) || 
       selectedTabIndex === null || 
       newName.length < 1) {
         setDisabled(true) 
@@ -54,7 +54,7 @@ const EditTabNameButton = ({
     setDisabled(false);
   };
   useEffect(() => {
-    updateName(selectedTab?.name);
+    updateName(selectedTab?.name || "");
   }, [selectedTab]);
 
   if (!selectedTab) return null;

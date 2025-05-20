@@ -55,13 +55,13 @@ function UserCards({
         containerClassName="h-full absolute inset-0"
       >
         <CardBody className="w-[720px] flex flex-col">
-          <TabsTopBar
+          { tabs && selectedTab && setTabs && setSelectedTabIndex && <TabsTopBar
             tabs={tabs}
             selectedTab={selectedTab}
             setSelectedTabIndex={setSelectedTabIndex}
             setTabs={setTabs}
             bordered={bordered}
-          />
+          />}
           <div
             className="grow w-full p-4 flex flex-col gap-4 relative group/card rounded-2xl"
           >

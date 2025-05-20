@@ -4,9 +4,8 @@ import { ChevronLeft, ChevronRight, Pen, Trash } from "lucide-react";
 import { useState } from "react";
 import { CardsInfo, CardsItem, CardsTab } from "~/models/Cards";
 import { AnimatePresence, motion } from "framer-motion";
-import TabCreator from "./Components/TabCreator";
+import ItemEditor from "./Components/ItemEditor";
 import { UserInfo } from "~/types/init";
-import TabButton from "./TabButton";
 import ItemDialog from "./ItemDialog";
 import UserCards from "~/components/features/UserCards";
 import DeleteTabButton from "./Components/DeleteTabButton";
@@ -169,7 +168,7 @@ const onItemDeleted = async (item: CardsItem) => {
                   <div className="grid grid-cols-2 gap-4">
                     {pageItems.map((item, idx) =>
                       item.addButton ? (
-                        <TabCreator key={idx} index={selectedTabIndex} onAdd={onNewItemAdded} />
+                        <ItemEditor key={idx} index={selectedTabIndex} onAdd={onNewItemAdded} />
                       ) : (
                         <TabItem
                           key={idx}

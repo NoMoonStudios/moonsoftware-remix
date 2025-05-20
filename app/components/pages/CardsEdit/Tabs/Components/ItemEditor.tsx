@@ -14,7 +14,7 @@ import { useState } from "react";
 import TabItem from "../TabItem";
 import { toast } from "sonner";
 import { CardsItem } from "~/models/Cards";
-const TabCreator = ({
+const ItemEditor = ({
   index,
   onAdd = () => {},
 }: {
@@ -59,10 +59,9 @@ const TabCreator = ({
         method: "POST",
         body: formData,
       });
-      console.log(response);
 
       if (!response.ok) throw new Error("Failed to update profile");
-      toast.success("uploaded successfully");
+      
       onAdd({
         title: title,
         description: description,
@@ -130,4 +129,4 @@ const TabCreator = ({
   );
 };
 
-export default TabCreator;
+export default ItemEditor;
