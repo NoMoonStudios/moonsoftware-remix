@@ -1,6 +1,7 @@
 import { Layers, Link2, Palette, Table, Table2, UserCog } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Toaster } from "sonner";
+import UserCards from "~/components/features/UserCards";
 import Overview from "~/components/pages/CardsEdit/Overview";
 import Settings from "~/components/pages/CardsEdit/Settings";
 import TabEditor from "~/components/pages/CardsEdit/Tabs";
@@ -63,7 +64,7 @@ function PortfolioPage() {
           title: "Tabs",
           icon: <Layers />,
           requiresCards: true,
-          content: <TabEditor userInfo={userInfo} cardsInfo={cardsInfo} />,
+          content: <UserCards userInfo={userInfo} editor setCardsInfo={setCardsInfo} cardsInfo={cardsInfo} />,
         },
         Templates: {
           title: "Templates",

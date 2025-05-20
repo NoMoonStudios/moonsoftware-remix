@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import ProfileCards from "~/components/features/UserCards";
+import ProfileCards from "~/components/features/UserCards/UserCards";
 
 const SkeletonProfile = () => {
   return (
@@ -96,8 +96,7 @@ const Profile = () => {
               </TooltipTrigger>
             </Tooltip>
           )}
-
-          <ProfileCards data={CardsInfo} includeBanner />
+          <ProfileCards setCardsInfo={(c) => {SetPorfolioInfo(c as CardsInfo)}} cardsInfo={CardsInfo} includeBanner />
         </>
       ) : (
         <SkeletonProfile />

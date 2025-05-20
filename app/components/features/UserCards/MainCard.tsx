@@ -1,43 +1,32 @@
-import { Bug, Cat, Clock, Heart, Sparkles } from "lucide-react";
-import { CardBody, CardContainer, CardItem } from "../ui/3d-card";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import ProfileBadges from "./ProfileBadges";
-import LinkRenderer from "../ui/link-renderer";
-import { Separator } from "@radix-ui/react-separator";
-import { format } from "date-fns";
-import { CardsInfo, CardsTab } from "~/models/Cards";
-import TabsTopBar from "../pages/CardsEdit/Tabs/TabsTopBar";
+import { CardBody, CardContainer, CardItem } from '~/components/ui/3d-card';
+import TabSelector from './Components/TabSelector';
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import ProfileBadges from '../ProfileBadges';
+import { Bug, Cat, Clock, Heart, Sparkles } from 'lucide-react';
+import { format } from 'date-fns';
+import { Separator } from '@radix-ui/react-separator';
+import LinkRenderer from '~/components/ui/link-renderer';
+import { CardsInfo, CardsTab } from '~/models/Cards';
 
-function UserCards({
-  data,
+function MainCard({
+  cardsInfo,
+  editor = false,
   includeBanner = false,
-  bordered = false,
-  tabs,
   selectedTab = null,
+  setTabs,
   setSelectedTabIndex,
-  setTabs
+  bordered = false,
 }: {
-  data: CardsInfo;
+  cardsInfo: CardsInfo;
+  editor?: boolean;
   includeBanner?: boolean;
-  absolute?: boolean;
   bordered?: boolean;
-  tabs?: CardsTab[];
   selectedTab?: CardsTab | null;
   setSelectedTabIndex?: React.Dispatch<React.SetStateAction<number | null>>;
-  setTabs?: React.Dispatch<React.SetStateAction<CardsTab[]>>;
+  setTabs: (tabs: CardsTab[]) => void;
 }) {
-  const {
-    username,
-    banner,
-    about,
-    displayName,
-    createdAt,
-    updated,
-    avatar,
-    links,
-    showTimestamps,
-  } = data;
-
+  const { about, banner, avatar, links, tabs, displayName, showTimestamps, updated, createdAt, username } = cardsInfo;
+  
   return (
     <>
       {includeBanner && banner && (
@@ -50,12 +39,10 @@ function UserCards({
           <div className="w-full h-full bg-gradient-to-t via-transparent from-black absolute z-[-1] top-0 left-0"></div>
         </>
       )}
-      <CardContainer
-        className="inter-var"
-        containerClassName="h-full absolute inset-0"
-      >
-        <CardBody className="w-[720px] flex flex-col">
-          { tabs && setTabs && setSelectedTabIndex && <TabsTopBar
+      <CardContainer>
+        <CardBody className="w-[720px] flex flex-col h-full">
+          { tabs && setTabs && setSelectedTabIndex && <TabSelector
+            editor={editor}
             tabs={tabs}
             selectedTab={selectedTab}
             setSelectedTabIndex={setSelectedTabIndex}
@@ -63,7 +50,7 @@ function UserCards({
             bordered={bordered}
           />}
           <div
-            className="grow w-full p-4 flex flex-col gap-4 relative group/card rounded-2xl"
+            className="grow w-full p-4 flex flex-col gap-4 relative group/card rounded-2xl min-h-100"
           >
             <div className={
               "absolute inset-0 bg-gray-950/20 backdrop-blur-lg rounded-2xl rounded-tl-none "+
@@ -79,7 +66,7 @@ function UserCards({
                 translateZ={40}
                 className="row-span-2 self-start select-none"
               >
-                <Avatar className="relative h-32 w-32 rounded-full overflow-hidden">
+                <Avatar className="relative h-32 w-32 rounded-full block overflow-hidden">
                   <AvatarImage src={avatar} alt={`@${username}`} />
                   <AvatarFallback>{displayName}</AvatarFallback>
                 </Avatar>
@@ -88,7 +75,7 @@ function UserCards({
               <CardItem translateZ={30} className="col-start-2 row-start-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-4xl font-bold">{displayName}</h2>
-                  <ProfileBadges profileInfo={data} />
+                  <ProfileBadges profileInfo={cardsInfo} />
                 </div>
               </CardItem>
 
@@ -102,51 +89,6 @@ function UserCards({
                 </CardItem>
               )}
             </div>
-            {
-              //Concept showcase will be replaced soon with actual shit
-              data.userid == "96127444" && (
-                <div className="w-full justify-stretch grid grid-cols-3 h-25 gap-2 select-none">
-                  <CardItem
-                    translateZ={50}
-                    rotateY={-20}
-                    className="bg-pink-800/30 w-full rounded flex justify-center flex-col items-center"
-                  >
-                    <div className="font-mono text-4xl flex flex-row items-center gap-2 text-pink-600">
-                      <Bug size={55} />
-                      <span className="font-extrabold">Zero</span>
-                    </div>
-                    <div className="font-mono text-2xl flex flex-row items-center gap-2 text-fuchsia-400">
-                      Critical Bugs
-                    </div>
-                  </CardItem>
-                  <CardItem
-                    translateZ={100}
-                    className="bg-emerald-700/20 w-full rounded flex justify-center flex-col items-center"
-                  >
-                    <div className="font-mono text-2xl flex flex-row items-center gap-2 text-emerald-400">
-                      <Sparkles size={55} />
-                      <span className="w-min font-extrabold">High Quality</span>
-                    </div>
-                    <div className="font-mono text-lg flex flex-row items-center gap-2 text-sky-400">
-                      Clean and Pretty
-                    </div>
-                  </CardItem>
-                  <CardItem
-                    translateZ={50}
-                    rotateY={20}
-                    className="bg-blue-700/20 w-full rounded flex justify-center flex-col items-center"
-                  >
-                    <div className="font-mono text-4xl flex flex-row items-center gap-2 text-blue-400 ">
-                      <Cat size={55} />
-                      <span className="w-min font-extrabold">Cat?</span>
-                    </div>
-                    <div className="font-mono text-lg flex flex-row items-center gap-2 text-purple-400">
-                      i love cats <Heart size={20} />
-                    </div>
-                  </CardItem>
-                </div>
-              )
-            }
 
             {/* Links Section */}
             {links.length > 0 && (
@@ -173,7 +115,9 @@ function UserCards({
 
             {/* Footer Timestamps */}
             {showTimestamps && (
-              <>
+              <CardItem
+                translateZ={10}
+              >
                 <Separator />
                 <div>
                   <div className="flex items-center gap-2 text-sm text-white/50">
@@ -184,7 +128,7 @@ function UserCards({
                     </span>
                   </div>
                 </div>
-              </>
+            </CardItem>
             )}
           </div>
         </CardBody>
@@ -193,4 +137,4 @@ function UserCards({
   );
 }
 
-export default UserCards;
+export default MainCard

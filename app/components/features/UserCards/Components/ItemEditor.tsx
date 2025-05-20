@@ -11,7 +11,7 @@ import { Textarea } from "~/components/ui/textarea";
 
 import { Loader } from "lucide-react";
 import { useState } from "react";
-import TabItem from "../TabItem";
+import TabItem from "./Tabs/TabItem";
 import { toast } from "sonner";
 import { CardsItem } from "~/models/Cards";
 const ItemEditor = ({

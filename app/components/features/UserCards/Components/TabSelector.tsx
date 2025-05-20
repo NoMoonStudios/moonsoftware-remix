@@ -1,19 +1,21 @@
 import React from "react";
 import { Card } from "~/components/ui/card";
-import NewTabButton from "./Components/NewTabButton";
+import NewTabButton from "./Tabs/Buttons/NewTabButton";
 import { CardsTab } from "~/models/Cards";
 
-const TabsTopBar = ({
+const TabSelector = ({
   tabs,
   selectedTab,
+  editor = false,
   setSelectedTabIndex,
   setTabs,
   bordered=true,
 }: {
   tabs: CardsTab[];
   selectedTab: CardsTab | null;
+  editor?: boolean;
   setSelectedTabIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  setTabs: React.Dispatch<React.SetStateAction<CardsTab[]>>;
+  setTabs: (tabs: CardsTab[]) => void;
   bordered?: boolean;
 }) => {
   return (
@@ -37,20 +39,24 @@ const TabsTopBar = ({
             (selectedTab?.name === v.name ? "bg-gray-800" : "")+
             (bordered ? " " : " border-0")
           }
+          style={(!editor && i === tabs.length - 1)? {borderTopRightRadius: '16px', borderRightWidth: '1px', borderColor: '1px'} : undefined}
+          
           onClick={() => setSelectedTabIndex(i)}
         >
           {v.name}
         </Card>
       ))}
       {/* NEED TAB BUTTON */}
-      <NewTabButton
+      { editor &&
+        <NewTabButton
         bordered={bordered}
         onUpdate={(name) =>
           setTabs([...(tabs || []), { name: name, items: [] }])
         }
-      />
+        />
+      }
     </div>
   );
 };
 
-export default TabsTopBar;
+export default TabSelector;

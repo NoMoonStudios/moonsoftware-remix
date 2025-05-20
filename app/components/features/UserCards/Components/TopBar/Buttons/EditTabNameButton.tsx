@@ -1,5 +1,5 @@
 import { Loader2, Pen } from "lucide-react";
-import TabButton from "../TabButton";
+import TabButton from "../../Tabs/Buttons/TabButton";
 import { CardsTab } from "~/models/Cards";
 import { useEffect, useState } from "react";
 import {

@@ -19,7 +19,7 @@ export interface CardsTab {
   items: Array<CardsItem>;
 }
 
-export interface CardsInfo extends Document {
+export interface CardsInfo {
   layout: string;
   userid: string;
   enabled: boolean;
