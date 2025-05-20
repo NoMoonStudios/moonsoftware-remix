@@ -13,7 +13,7 @@ function UserCards({
   includeBanner = false,
   bordered = false,
   tabs,
-  selectedTab,
+  selectedTab = null,
   setSelectedTabIndex,
   setTabs
 }: {
@@ -21,10 +21,10 @@ function UserCards({
   includeBanner?: boolean;
   absolute?: boolean;
   bordered?: boolean;
-  tabs: CardsTab[];
-  selectedTab: CardsTab | null;
-  setSelectedTabIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  setTabs: React.Dispatch<React.SetStateAction<CardsTab[]>>;
+  tabs?: CardsTab[];
+  selectedTab?: CardsTab | null;
+  setSelectedTabIndex?: React.Dispatch<React.SetStateAction<number | null>>;
+  setTabs?: React.Dispatch<React.SetStateAction<CardsTab[]>>;
 }) {
   const {
     username,
@@ -55,7 +55,7 @@ function UserCards({
         containerClassName="h-full absolute inset-0"
       >
         <CardBody className="w-[720px] flex flex-col">
-          { tabs && selectedTab && setTabs && setSelectedTabIndex && <TabsTopBar
+          { tabs && setTabs && setSelectedTabIndex && <TabsTopBar
             tabs={tabs}
             selectedTab={selectedTab}
             setSelectedTabIndex={setSelectedTabIndex}
