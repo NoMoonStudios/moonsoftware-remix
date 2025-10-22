@@ -25,4 +25,17 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  server: {
+    port: 5173, // Vite dev server runs on 5173
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', // Remix backend runs on 3000
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        timeout: 120000, // 2 minutes
+        proxyTimeout: 120000, // 2 minutes
+      }
+    }
+  }
 });
