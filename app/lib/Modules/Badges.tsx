@@ -103,6 +103,11 @@ const badges: {[key: number]: BadgeInfo} = {
     badge: <img src="/badges/dc.png" alt="DC" />,
     description: "Verified DevCentral Staff"
   },
+  14: {
+    name: "UnifyDevs Staff",
+    badge: <img src="/badges/Unify.png" alt="UD" />,
+    description: "Verified UnifyDevs Staff"
+  },
 }
 
 export default badges
